@@ -93,9 +93,11 @@ void Initialize(HWND hwnd)
 
 void Uninitialize()
 {
-	if (g_d2dDeviceContext) g_d2dDeviceContext->Release();
-	if (g_dxgiSwapChain) g_dxgiSwapChain->Release();
-	if (g_d2dBitmapTarget) g_d2dBitmapTarget->Release();
+	//CoUninitialize(); 호출전에 Release가 호출되어야 크래시가 나지 않음.
+	g_d2dBitmapTarget = nullptr;
+	g_d2dDeviceContext = nullptr;
+	g_d3dDevice = nullptr;
+	g_dxgiSwapChain=nullptr;
 }
 
 void Render()
@@ -145,7 +147,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	}
 
 	Uninitialize(); 	
-
 	CoUninitialize();
 	return 0;
 }

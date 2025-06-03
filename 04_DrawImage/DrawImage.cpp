@@ -174,6 +174,7 @@ void Initialize(HWND hwnd)
 
 void Uninitialize()
 {
+	//CoUninitialize(); 호출전에 Release가 호출되어야 크래시가 나지 않음.
 	g_wicImagingFactory = nullptr;
 	g_d2dBitmapFromFile = nullptr;
 

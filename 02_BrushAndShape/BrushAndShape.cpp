@@ -111,6 +111,7 @@ void Initialize(HWND hwnd)
 
 void Uninitialize()
 {
+	//CoUninitialize(); 호출전에 Release가 호출되어야 크래시가 나지 않음.
 	g_pBlackBrush = nullptr;	// 렌더타겟이 생성하는 리소스 역시 장치의존
 	g_pGrayBrush = nullptr;
 

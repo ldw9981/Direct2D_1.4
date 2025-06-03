@@ -225,9 +225,7 @@ void Init(HWND hwnd) {
 
 void Uninitialize()
 {
-	// 프로그램 종류 후에 ComPtr Release()하면 이미 없어진 인스턴스를 주소로 
-	// Release하여 문제가 생기므로 종료전에 Release() 해준다.
-
+	//CoUninitialize(); 호출전에 Release가 호출되어야 크래시가 나지 않음.
 	g_d3dDevice = nullptr;
 	g_swapChain = nullptr;
 	g_d2dContext = nullptr;
