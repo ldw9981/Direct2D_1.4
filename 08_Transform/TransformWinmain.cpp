@@ -63,8 +63,8 @@ Transform g_manLocalTransform;
 Transform g_stoneLocalTransform;
 Transform g_cameraTransform;
 
-bool g_bRenderMatrix = false;
-bool g_bUnityCoords = false;
+bool g_bRenderMatrix = true;
+bool g_bUnityCoords = true;
 bool g_bMirror = false;
 
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -313,6 +313,12 @@ void Render()
 {
     g_pRenderTarget->BeginDraw();
     g_pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::Black));
+    
+    if (g_bUnityCoords)
+        g_matUnity = D2D1::Matrix3x2F::Scale(1.0f, -1.0f) *
+            D2D1::Matrix3x2F::Translation(g_ScreenSize.width / 2, g_ScreenSize.height / 2);
+    else
+        g_matUnity = D2D1::Matrix3x2F::Identity();
 
     Matrix3x2F matParentWorld;
     Matrix3x2F matRender = MakeRenderMatrix(false, g_bUnityCoords, 0, 0);
@@ -348,6 +354,10 @@ void Render()
     matR = D2D1::Matrix3x2F::Rotation(g_stoneLocalTransform.Rotation);
     matT = D2D1::Matrix3x2F::Translation(g_stoneLocalTransform.Translation.x, g_stoneLocalTransform.Translation.y);
 
+   
+    PrintPoint(L"Camera 이동 <^>", D2D1::Point2(g_cameraTransform.GetTranslation().x,
+        g_cameraTransform.GetTranslation().y), 50, 280);
+
     PrintText(L"^", matStoneFinal.dx, matStoneFinal.dy);
     PrintText(L"Stone", 75, 340);
     PrintPoint(L"[Q/E]", D2D1::Point2(g_stoneLocalTransform.Scale.x, g_stoneLocalTransform.Scale.y), 0, 360);
@@ -357,10 +367,10 @@ void Render()
     PrintPoint(L"[WASD]", D2D1::Point2(g_stoneLocalTransform.Translation.x, g_stoneLocalTransform.Translation.y), 120, 360);
     PrintMatrix(L"\nPos", matT, 120, 400);
 
-    PrintMatrix(L"[F2]\n렌더행렬 *", matRender, 210, 400);
+    PrintMatrix(L"[F2]끄기\n렌더행렬 *", matRender, 210, 400);
     PrintMatrix(L"Local\n월드행렬 *", matStoneWorld, 300, 400);
     PrintMatrix(L"\n카메라 역행렬 *", matCameraInv, 400, 400);
-    PrintMatrix(L"[F3] ToUnity\nUnity행렬", g_matUnity, 550, 400);
+    PrintMatrix(L"[F3]끄기\nUnity행렬", g_matUnity, 550, 400);
     PrintMatrix(L"\n= 최종행렬", matStoneFinal, 650, 400);
 
 
@@ -391,11 +401,11 @@ void Render()
     PrintPoint(L"[YGHJ]", D2D1::Point2(g_manLocalTransform.Translation.x, g_manLocalTransform.Translation.y), 120, 560);
     PrintMatrix(L"\nPos", matT, 120, 600);
 
-    PrintMatrix(L"[F2] \n렌더행렬 *", matRender, 210, 600);
+    PrintMatrix(L"[F2]끄기 \n렌더행렬 *", matRender, 210, 600);
     PrintMatrix(L"Local*Parent\n월드행렬 *", matManWorld, 300, 600);
 
     PrintMatrix(L"\n카메라 역행렬 *", matCameraInv, 400, 600);
-    PrintMatrix(L"[F3] ToUnity\nUnity행렬", g_matUnity, 550, 600);
+    PrintMatrix(L"[F3]끄기\nUnity행렬", g_matUnity, 550, 600);
     PrintMatrix(L"\n= 최종행렬", matManFinal, 650, 600);
     g_pRenderTarget->EndDraw();
 }
@@ -494,15 +504,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (wParam == VK_F3)
         {
             g_bUnityCoords = !g_bUnityCoords;
-            if (g_bUnityCoords)
-            {
-                g_matUnity = D2D1::Matrix3x2F::Scale(1.0f, -1.0f) *
-                    D2D1::Matrix3x2F::Translation(g_ScreenSize.width / 2, g_ScreenSize.height / 2);
-            }
-            else
-            {
-                g_matUnity = D2D1::Matrix3x2F::Identity();
-            }
         }
 
 
