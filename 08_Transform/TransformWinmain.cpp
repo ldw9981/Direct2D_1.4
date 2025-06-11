@@ -59,13 +59,14 @@ ID2D1SolidColorBrush* g_pBrush; // 브러시 개체 인터페이스 포인터 변수
 Transform g_signTransform;
 Transform g_rootTransform;
 
-Transform g_manLocalTransform;
-Transform g_stoneLocalTransform;
+Transform g_manTransform;
+Transform g_stoneTransform;
 Transform g_cameraTransform;
 
 bool g_bRenderMatrix = true;
 bool g_bUnityCoords = true;
 bool g_bMirror = false;
+bool g_bAttachCamraToStone = false;
 
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 
@@ -244,64 +245,72 @@ void UninitDirect2D()
 
 void ProcessKey()
 {
+    // Camera
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-        g_cameraTransform.Translation.x -= 1;
+        g_cameraTransform.SetTranslation( g_cameraTransform.Translation.x -1,
+            g_cameraTransform.Translation.y);
 
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-        g_cameraTransform.Translation.x += 1;
+        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x + 1,
+            g_cameraTransform.Translation.y);
 
     if (GetAsyncKeyState(VK_UP) & 0x8000)
-        g_cameraTransform.Translation.y += 1;
+        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x,
+            g_cameraTransform.Translation.y+1);
 
     if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-        g_cameraTransform.Translation.y -= 1;
+        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x,
+            g_cameraTransform.Translation.y - 1);
 
-    if (GetAsyncKeyState('A') & 0x8000)
-        g_stoneLocalTransform.Translation.x -= 1;
+
+    //Stone
+    if (GetAsyncKeyState('A') & 0x8000)        
+        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x - 1,g_stoneTransform.Translation.y);    
     if (GetAsyncKeyState('D') & 0x8000)
-        g_stoneLocalTransform.Translation.x += 1;
+        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x + 1,g_stoneTransform.Translation.y);
     if (GetAsyncKeyState('W') & 0x8000)
-        g_stoneLocalTransform.Translation.y += 1;
+        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x,g_stoneTransform.Translation.y+1);
     if (GetAsyncKeyState('S') & 0x8000)
-        g_stoneLocalTransform.Translation.y -= 1;
+        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x,g_stoneTransform.Translation.y - 1);
     if (GetAsyncKeyState('Q') & 0x8000)
-        g_stoneLocalTransform.Scale.x -= 0.01f;
+        g_stoneTransform.SetScale(g_stoneTransform.Scale.x - 0.01f, g_stoneTransform.Scale.y);
     if (GetAsyncKeyState('E') & 0x8000)
-        g_stoneLocalTransform.Scale.x += 0.01f;
+        g_stoneTransform.SetScale(g_stoneTransform.Scale.x + 0.01f, g_stoneTransform.Scale.y);
     if (GetAsyncKeyState('Z') & 0x8000)
-        g_stoneLocalTransform.Rotation += 1;
+        g_stoneTransform.SetRotation(g_stoneTransform.Rotation + 1);
     if (GetAsyncKeyState('C') & 0x8000)
-        g_stoneLocalTransform.Rotation -= 1;
+        g_stoneTransform.SetRotation(g_stoneTransform.Rotation -1);
 
+    //Man
     if (GetAsyncKeyState('G') & 0x8000)
     {
         g_bMirror = true;
-        g_manLocalTransform.Translation.x -= 1;
+        g_manTransform.SetTranslation(g_manTransform.Translation.x - 1, g_manTransform.Translation.y);
     }
     if (GetAsyncKeyState('J') & 0x8000)
     {
         g_bMirror = false;
-        g_manLocalTransform.Translation.x += 1;
+        g_manTransform.SetTranslation(g_manTransform.Translation.x + 1, g_manTransform.Translation.y);
     }
     if (GetAsyncKeyState('Y') & 0x8000)
-        g_manLocalTransform.Translation.y += 1;
+        g_manTransform.SetTranslation(g_manTransform.Translation.x, g_manTransform.Translation.y + 1);
     if (GetAsyncKeyState('H') & 0x8000)
-        g_manLocalTransform.Translation.y -= 1;
+        g_manTransform.SetTranslation(g_manTransform.Translation.x, g_manTransform.Translation.y - 1);
     if (GetAsyncKeyState('T') & 0x8000)
-        g_manLocalTransform.Scale.x -= 0.01f;
+        g_manTransform.SetScale(g_manTransform.Scale.x - 0.01f, g_manTransform.Scale.y);
     if (GetAsyncKeyState('U') & 0x8000)
-        g_manLocalTransform.Scale.x += 0.01f;
+        g_manTransform.SetScale(g_manTransform.Scale.x + 0.01f, g_manTransform.Scale.y);
     if (GetAsyncKeyState('B') & 0x8000)
-        g_manLocalTransform.Rotation += 1;
+        g_manTransform.SetRotation(g_manTransform.Rotation + 1);
     if (GetAsyncKeyState('M') & 0x8000)
-        g_manLocalTransform.Rotation -= 1;
+        g_manTransform.SetRotation(g_manTransform.Rotation - 1);
 
     if (GetAsyncKeyState('R') & 0x8000)
     {
         g_cameraTransform.Reset();
         g_rootTransform.Reset();
-        g_stoneLocalTransform.Reset();
-        g_manLocalTransform.Reset();
+        g_stoneTransform.Reset();
+        g_manTransform.Reset();
         g_bUnityCoords = false;
         g_bMirror = false;
     }
@@ -323,22 +332,27 @@ void Render()
     Matrix3x2F matParentWorld;
     Matrix3x2F matRender = MakeRenderMatrix(false, g_bUnityCoords, 0, 0);
     // 카메라 좌표계로 변환하는 행렬
-    Matrix3x2F matCameraInv = g_cameraTransform.ToMatrix();
+    Matrix3x2F matCameraWorld = g_cameraTransform.GetWorldMatrix();
+    Matrix3x2F matCameraInv = matCameraWorld;
+    PrintText(L"[F4]Stone에 붙이기", 50, 260);
+    PrintPoint(L"Camera 이동 <^>", D2D1::Point2(matCameraWorld.dx, matCameraWorld.dy), 50, 280);
+
+
     matCameraInv.Invert();
 
     // 0,0을 표시하는 표지판 그리기            
     Matrix3x2F matSignFinal;
     if (!g_bUnityCoords)
-        matSignFinal = matRender * g_signTransform.ToMatrix() * matCameraInv;
+        matSignFinal = matRender * g_signTransform.GetWorldMatrix() * matCameraInv;
     else
-        matSignFinal = matRender * g_signTransform.ToMatrix() * matCameraInv * g_matUnity;
+        matSignFinal = matRender * g_signTransform.GetWorldMatrix() * matCameraInv * g_matUnity;
 
     g_pRenderTarget->SetTransform(matSignFinal);
     g_pRenderTarget->DrawBitmap(g_bitmapSign);
 
     // stone 그리기
     matRender = MakeRenderMatrix(false, g_bUnityCoords, 0, 0);
-    Matrix3x2F matStoneWorld = g_stoneLocalTransform.ToMatrix();
+    Matrix3x2F matStoneWorld = g_stoneTransform.GetWorldMatrix();
     Matrix3x2F matStoneFinal;
     if (!g_bUnityCoords)
         matStoneFinal = matRender * matStoneWorld * matCameraInv;
@@ -350,21 +364,19 @@ void Render()
 
     // 스톤 World Matrix 디버깅
     D2D1::Matrix3x2F matS, matR, matT;
-    matS = D2D1::Matrix3x2F::Scale(g_stoneLocalTransform.Scale.x, g_stoneLocalTransform.Scale.y);
-    matR = D2D1::Matrix3x2F::Rotation(g_stoneLocalTransform.Rotation);
-    matT = D2D1::Matrix3x2F::Translation(g_stoneLocalTransform.Translation.x, g_stoneLocalTransform.Translation.y);
+    matS = D2D1::Matrix3x2F::Scale(g_stoneTransform.Scale.x, g_stoneTransform.Scale.y);
+    matR = D2D1::Matrix3x2F::Rotation(g_stoneTransform.Rotation);
+    matT = D2D1::Matrix3x2F::Translation(g_stoneTransform.Translation.x, g_stoneTransform.Translation.y);
 
    
-    PrintPoint(L"Camera 이동 <^>", D2D1::Point2(g_cameraTransform.GetTranslation().x,
-        g_cameraTransform.GetTranslation().y), 50, 280);
 
     PrintText(L"^", matStoneFinal.dx, matStoneFinal.dy);
     PrintText(L"Stone", 75, 340);
-    PrintPoint(L"[Q/E]", D2D1::Point2(g_stoneLocalTransform.Scale.x, g_stoneLocalTransform.Scale.y), 0, 360);
+    PrintPoint(L"[Q/E]", D2D1::Point2(g_stoneTransform.Scale.x, g_stoneTransform.Scale.y), 0, 360);
     PrintMatrix(L"\nScl   *", matS, 0, 400);
-    PrintFloat(L"[Z/C]", g_stoneLocalTransform.Rotation, 60, 360);
+    PrintFloat(L"[Z/C]", g_stoneTransform.Rotation, 60, 360);
     PrintMatrix(L"\nRot  *", matR, 60, 400);
-    PrintPoint(L"[WASD]", D2D1::Point2(g_stoneLocalTransform.Translation.x, g_stoneLocalTransform.Translation.y), 120, 360);
+    PrintPoint(L"[WASD]", D2D1::Point2(g_stoneTransform.Translation.x, g_stoneTransform.Translation.y), 120, 360);
     PrintMatrix(L"\nPos", matT, 120, 400);
 
     PrintMatrix(L"[F2]끄기\n렌더행렬 *", matRender, 210, 400);
@@ -374,10 +386,10 @@ void Render()
     PrintMatrix(L"\n= 최종행렬", matStoneFinal, 650, 400);
 
 
-    // Stone을 부모로 Man그리기
+    // Man그리기  
     matRender = MakeRenderMatrix(g_bMirror, g_bUnityCoords, g_bitmapMan->GetSize().width / 3, g_bitmapMan->GetSize().height);
-
-    Matrix3x2F matManWorld = g_manLocalTransform.ToMatrix() * matStoneWorld;
+    g_manTransform.Parent = &g_stoneTransform; //Stone을 부모로 연결
+    Matrix3x2F matManWorld = g_manTransform.GetWorldMatrix();
     Matrix3x2F matManFinal;
     if (!g_bUnityCoords)
         matManFinal = matRender * matManWorld * matCameraInv;
@@ -388,17 +400,17 @@ void Render()
     g_pRenderTarget->DrawBitmap(g_bitmapMan);
 
     // Man World Matrix 디버깅
-    matS = D2D1::Matrix3x2F::Scale(g_manLocalTransform.Scale.x, g_manLocalTransform.Scale.y);
-    matR = D2D1::Matrix3x2F::Rotation(g_manLocalTransform.Rotation);
-    matT = D2D1::Matrix3x2F::Translation(g_manLocalTransform.Translation.x, g_manLocalTransform.Translation.y);
+    matS = D2D1::Matrix3x2F::Scale(g_manTransform.Scale.x, g_manTransform.Scale.y);
+    matR = D2D1::Matrix3x2F::Rotation(g_manTransform.Rotation);
+    matT = D2D1::Matrix3x2F::Translation(g_manTransform.Translation.x, g_manTransform.Translation.y);
 
 
     PrintText(L"부모가 Stone인 Man", 75, 540);
-    PrintPoint(L"[T/U]", D2D1::Point2(g_manLocalTransform.Scale.x, g_manLocalTransform.Scale.y), 0, 560);
+    PrintPoint(L"[T/U]", D2D1::Point2(g_manTransform.Scale.x, g_manTransform.Scale.y), 0, 560);
     PrintMatrix(L"\nScl *", matS, 0, 600);
-    PrintFloat(L"[B/M]", g_manLocalTransform.Rotation, 60, 560);
+    PrintFloat(L"[B/M]", g_manTransform.Rotation, 60, 560);
     PrintMatrix(L"\nRot *", matR, 60, 600);
-    PrintPoint(L"[YGHJ]", D2D1::Point2(g_manLocalTransform.Translation.x, g_manLocalTransform.Translation.y), 120, 560);
+    PrintPoint(L"[YGHJ]", D2D1::Point2(g_manTransform.Translation.x, g_manTransform.Translation.y), 120, 560);
     PrintMatrix(L"\nPos", matT, 120, 600);
 
     PrintMatrix(L"[F2]끄기 \n렌더행렬 *", matRender, 210, 600);
@@ -504,6 +516,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         if (wParam == VK_F3)
         {
             g_bUnityCoords = !g_bUnityCoords;
+        }
+
+        if (wParam == VK_F4)
+        {
+            g_bAttachCamraToStone = !g_bAttachCamraToStone;
+            if (g_bAttachCamraToStone)
+                g_cameraTransform.Parent = & g_stoneTransform;
+            else
+                g_cameraTransform.Parent = nullptr;
         }
 
 
