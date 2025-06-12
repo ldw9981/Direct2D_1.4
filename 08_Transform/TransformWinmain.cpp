@@ -5,7 +5,7 @@
 #include <d2d1_1helper.h>
 #include <string>
 #include <dwrite.h>
-
+#include <assert.h>
 
 #pragma comment(lib,"d2d1.lib")
 #pragma comment(lib,"dwrite.lib")
