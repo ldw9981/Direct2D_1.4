@@ -47,6 +47,10 @@ public:
         Translation = { 0.0f, 0.0f };
         Dirty = true;
     }
+
+    void AddTranslation(float x, float y);
+    void AddRotation(float degree);
+    void AddScale(float x, float y);
 };
 
 

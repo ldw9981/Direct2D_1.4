@@ -247,63 +247,70 @@ void ProcessKey()
 {
     // Camera
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
-        g_cameraTransform.SetTranslation( g_cameraTransform.Translation.x -1,
-            g_cameraTransform.Translation.y);
+        g_cameraTransform.AddTranslation(-1.0f, 0.0f);
 
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
-        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x + 1,
-            g_cameraTransform.Translation.y);
+        g_cameraTransform.AddTranslation(+1.0f, 0.0f);
 
     if (GetAsyncKeyState(VK_UP) & 0x8000)
-        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x,
-            g_cameraTransform.Translation.y+1);
+        g_cameraTransform.AddTranslation(0.0f, +1.0f);
 
     if (GetAsyncKeyState(VK_DOWN) & 0x8000)
-        g_cameraTransform.SetTranslation(g_cameraTransform.Translation.x,
-            g_cameraTransform.Translation.y - 1);
-
+        g_cameraTransform.AddTranslation(0.0f, -1.0f);
 
     //Stone
     if (GetAsyncKeyState('A') & 0x8000)        
-        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x - 1,g_stoneTransform.Translation.y);    
+        g_stoneTransform.AddTranslation(-1.0f, 0.0f);
+
     if (GetAsyncKeyState('D') & 0x8000)
-        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x + 1,g_stoneTransform.Translation.y);
+        g_stoneTransform.AddTranslation(+1.0f, 0.0f);
+
     if (GetAsyncKeyState('W') & 0x8000)
-        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x,g_stoneTransform.Translation.y+1);
+        g_stoneTransform.AddTranslation(0.0f, +1.0f);
+
     if (GetAsyncKeyState('S') & 0x8000)
-        g_stoneTransform.SetTranslation(g_stoneTransform.Translation.x,g_stoneTransform.Translation.y - 1);
+        g_stoneTransform.AddTranslation(0.0f, -1.0f);
+
     if (GetAsyncKeyState('Q') & 0x8000)
-        g_stoneTransform.SetScale(g_stoneTransform.Scale.x - 0.01f, g_stoneTransform.Scale.y);
+        g_stoneTransform.AddScale(-1.0f,-1.0f);
+
     if (GetAsyncKeyState('E') & 0x8000)
-        g_stoneTransform.SetScale(g_stoneTransform.Scale.x + 0.01f, g_stoneTransform.Scale.y);
+        g_stoneTransform.AddScale(+1.0f,+1.0f);
+
     if (GetAsyncKeyState('Z') & 0x8000)
-        g_stoneTransform.SetRotation(g_stoneTransform.Rotation + 1);
+        g_stoneTransform.AddRotation(+1.0f);
+
     if (GetAsyncKeyState('C') & 0x8000)
-        g_stoneTransform.SetRotation(g_stoneTransform.Rotation -1);
+        g_stoneTransform.AddRotation(-1.0f);
 
     //Man
     if (GetAsyncKeyState('G') & 0x8000)
     {
-        g_bMirror = true;
-        g_manTransform.SetTranslation(g_manTransform.Translation.x - 1, g_manTransform.Translation.y);
+        g_bMirror = true; 
+        g_manTransform.AddTranslation(-1.0f, 0.0f);
     }
     if (GetAsyncKeyState('J') & 0x8000)
     {
-        g_bMirror = false;
-        g_manTransform.SetTranslation(g_manTransform.Translation.x + 1, g_manTransform.Translation.y);
+        g_bMirror = false;     
+        g_manTransform.AddTranslation(+1.0f, 0.0f);
     }
     if (GetAsyncKeyState('Y') & 0x8000)
-        g_manTransform.SetTranslation(g_manTransform.Translation.x, g_manTransform.Translation.y + 1);
+        g_manTransform.AddTranslation(0.0f, +1.0f);
+
     if (GetAsyncKeyState('H') & 0x8000)
-        g_manTransform.SetTranslation(g_manTransform.Translation.x, g_manTransform.Translation.y - 1);
+        g_manTransform.AddTranslation(0.0f, -1.0f);
+    
     if (GetAsyncKeyState('T') & 0x8000)
-        g_manTransform.SetScale(g_manTransform.Scale.x - 0.01f, g_manTransform.Scale.y);
+        g_manTransform.AddScale(-1.0f, -1.0f);
+    
     if (GetAsyncKeyState('U') & 0x8000)
-        g_manTransform.SetScale(g_manTransform.Scale.x + 0.01f, g_manTransform.Scale.y);
+        g_manTransform.AddScale(+1.0f, +1.0f);
+    
     if (GetAsyncKeyState('B') & 0x8000)
-        g_manTransform.SetRotation(g_manTransform.Rotation + 1);
+        g_manTransform.AddRotation(+1.0f);
+    
     if (GetAsyncKeyState('M') & 0x8000)
-        g_manTransform.SetRotation(g_manTransform.Rotation - 1);
+        g_manTransform.AddRotation(-1.0f);
 
     if (GetAsyncKeyState('R') & 0x8000)
     {
