@@ -33,8 +33,10 @@ public:
     std::vector<T*> GetComponents() {
         std::vector<T*> result;
         for (Component* comp : components) {
-            // 실행도중(Runtime)에 comp가 가르키는 인스턴스가 RTTI정보를 이용하여 
-            // T이거나 T의 자식 클래스 이면 주소를 리턴한다.
+            // 실행도중(Runtime)에 comp가 가르키는 인스턴스가 RTTI정보 이용하여 
+            // T이거나 T의 자식 클래스 이면 주소를 리턴한다. 클래스가 가상 함수를 하나라도 가지면,
+			// 컴파일러는 해당 클래스에 대해 vtable + RTTI(Run-Time Type Information, 런타임 타입 정보)
+            // 정보 블록을 생성합니다.
             if (auto casted = dynamic_cast<T*>(comp))
                 result.push_back(casted);
         }
