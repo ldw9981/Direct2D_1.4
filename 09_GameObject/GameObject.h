@@ -8,11 +8,13 @@ private:
     std::vector<Component*> components;
 
 public:
-    ~GameObject() {
-        for (Component* comp : components)
-            delete comp;    // 전방선언만으로는 가상소멸자 호출할수없다. 구체적인 선언이 include 필요
-
-        components.clear();
+    ~GameObject() 
+    {
+		for (Component* comp : components) {
+			comp->OnDestroy();
+			delete comp;
+		}
+		components.clear();
     }
 
     // Class T를 생성하는 함수 , 인자까지 전달한다.
@@ -26,6 +28,7 @@ public:
         T* comp = new T(std::forward<Args>(args)...);
         comp->owner = this;
         components.push_back(comp);
+        comp->OnEnable();
         return comp;
     }
 
@@ -43,11 +46,23 @@ public:
         return result;
     }
 
+	template<typename T>
+	T* GetComponent() {
+		for (Component* comp : components) {
+			if (typeid(*comp) == typeid(T)) //완전히 동일한 타입만
+				return static_cast<T*>(comp); //안전하게 static_cast
+		}
+		return nullptr;
+	}
+
     template<typename T>
     bool RemoveComponent(T* target) {
+        
         for (auto it = components.begin(); it != components.end(); ++it) {
-            if (*it == target) {
-                delete* it;
+            if (*it == target) 
+            {
+				(*it)->OnDestroy();
+				delete* it;
                 components.erase(it);
                 return true;
             }
