@@ -1,6 +1,52 @@
 #include "Transform.h"
 #include <assert.h>
 
+
+
+void Transform::SetTranslation(float x, float y)
+{
+	LocalDirty = true;
+	Translation.x = x; Translation.y = y;
+	MarkWorldDirty();
+}
+
+void Transform::SetRotation(float InRotation)
+{
+	LocalDirty = true;  Rotation = InRotation;
+	MarkWorldDirty();
+}
+
+void Transform::SetScale(float scaleX, float scaleY)
+{
+	LocalDirty = true;  Scale.x = scaleX; Scale.y = scaleY;
+	MarkWorldDirty();
+}
+
+// 복사없이 참조로 리턴하면서 수정은 불가
+const D2D1::Matrix3x2F& Transform::GetLocalMatrix()
+{
+	if (LocalDirty)
+	{
+		//     CachedLocal = D2D1::Matrix3x2F::Scale(Scale.x, Scale.y) *
+		//        D2D1::Matrix3x2F::Rotation(Rotation) *
+		//       D2D1::Matrix3x2F::Translation(Translation.x, Translation.y);        
+		MakeLocalMatrix();
+		LocalDirty = false;
+	}
+	return CachedLocal;
+}
+
+// 복사없이 참조로 리턴하면서 수정은 불가
+const D2D1::Matrix3x2F& Transform::GetWorldMatrix()
+{
+	if (WorldDirty || LocalDirty)
+	{
+		CachedWorld = Parent ? GetLocalMatrix() * Parent->GetWorldMatrix() : GetLocalMatrix();
+		WorldDirty = false;
+	}
+	return CachedWorld;
+}
+
 void Transform::SetParent(Transform* Target)
 {
 	if (Parent == Target) // 이미 같으면 리턴
@@ -15,6 +61,15 @@ void Transform::SetParent(Transform* Target)
 		Parent->AddChild(this);	//부모가 있으면 추가
 
 	// 부모가 없어지거나 새로 생겼으니 자식에게 World바꾸라고 전파
+	MarkWorldDirty();
+}
+
+void Transform::Reset()
+{
+	Scale = { 1.0f, 1.0f };
+	Rotation = { 0.0f };
+	Translation = { 0.0f, 0.0f };
+	LocalDirty = true;
 	MarkWorldDirty();
 }
 

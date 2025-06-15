@@ -37,13 +37,12 @@ public:
 
     template<typename T>
     bool RemoveComponent(T* target) {
-        auto it = std::remove_if(components.begin(), components.end(),
-            [target](Component* comp) { return comp == target; });
-
-        if (it != components.end()) {
-            delete* it;
-            components.erase(it, components.end());
-            return true;
+        for (auto it = components.begin(); it != components.end(); ++it) {
+            if (*it == target) {
+                delete* it;
+                components.erase(it);
+                return true;
+            }
         }
         return false;
     }

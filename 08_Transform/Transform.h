@@ -18,64 +18,26 @@ public:
     D2D1::Matrix3x2F CachedWorld;
     Transform* Parent = nullptr;
     std::vector<Transform*> Children;
+
     Transform()
         : Translation{ 0.0f, 0.0f }, Rotation(0.0f), Scale{ 1.0f, 1.0f }
     {
         CachedLocal = D2D1::Matrix3x2F::Identity();
+        CachedWorld = D2D1::Matrix3x2F::Identity();
     }
     D2D1_VECTOR_2F GetTranslation() { return Translation; }
-    void SetTranslation(float x, float y) 
-    { 
-        LocalDirty = true;  
-        Translation.x = x; Translation.y = y;       
-        MarkWorldDirty();
-    }
+    void SetTranslation(float x, float y);
     float GetRotation() {   return Rotation; }
-    void  SetRotation(float InRotation) 
-    {
-        LocalDirty = true;  Rotation = InRotation;
-        MarkWorldDirty();
-    }
+    void  SetRotation(float InRotation);
     D2D1_VECTOR_2F GetScale() {     return Scale; }
-    void SetScale(float scaleX, float scaleY) 
-    { 
-        LocalDirty = true;  Scale.x = scaleX; Scale.y = scaleY;       
-        MarkWorldDirty();
-    }
+    void SetScale(float scaleX, float scaleY);
 
     // 복사없이 참조로 리턴하면서 수정은 불가
-    const D2D1::Matrix3x2F& GetLocalMatrix()
-    {       
-        if (LocalDirty) 
-        {           
-       //     CachedLocal = D2D1::Matrix3x2F::Scale(Scale.x, Scale.y) *
-        //        D2D1::Matrix3x2F::Rotation(Rotation) *
-         //       D2D1::Matrix3x2F::Translation(Translation.x, Translation.y);        
-            MakeLocalMatrix();            
-            LocalDirty = false;
-        }            
-        return CachedLocal;
-    }
-
+    const D2D1::Matrix3x2F& GetLocalMatrix();
     // 복사없이 참조로 리턴하면서 수정은 불가
-    const D2D1::Matrix3x2F& GetWorldMatrix()
-    {       
-        if (WorldDirty || LocalDirty)
-        {
-            CachedWorld = Parent ? GetLocalMatrix() * Parent->GetWorldMatrix() : GetLocalMatrix();
-            WorldDirty = false;
-        }
-        return CachedWorld;
-    }
+    const D2D1::Matrix3x2F& GetWorldMatrix();
     void SetParent(Transform* parent);
-    void Reset()
-    {
-        Scale = { 1.0f, 1.0f };
-        Rotation = { 0.0f };
-        Translation = { 0.0f, 0.0f };
-        LocalDirty = true;
-        MarkWorldDirty();
-    }
+    void Reset();
 
     void AddTranslation(float x, float y);
     void AddRotation(float degree);
