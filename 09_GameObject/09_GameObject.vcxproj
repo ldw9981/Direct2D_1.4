@@ -127,12 +127,14 @@
     <ClCompile Include="Component.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="MyComponent.cpp" />
+    <ClCompile Include="MyPlusComponent.cpp" />
     <ClCompile Include="MySystem.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Component.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="MyComponent.h" />
+    <ClInclude Include="MyPlusComponent.h" />
     <ClInclude Include="MySystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

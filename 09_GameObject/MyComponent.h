@@ -3,33 +3,30 @@
 #include <iostream>
 #include "MySystem.h"
 
-class IMyComponent
-{
-public:
-    virtual void DoSomeThing() = 0;
-};
+
 
 class MyComponent :
-    public Component , public IMyComponent
+    public Component
 {
 public:
     MyComponent(int value)
         :m_Value(value)
     {
+        std::cout << this << " " << __FUNCTION__ << "\n";
         MySystem::Instance->Regist(this);
     }
     ~MyComponent() override
     {
-        std::cout << __FUNCTION__  << "\n";
+        std::cout << this << " " << __FUNCTION__  << "\n";
         MySystem::Instance->Unregist(this);
     }
 
     int m_Value;
 
 
-    void DoSomeThing() override
+    virtual void DoSomeThing()
     {
-        std::cout << __FUNCTION__ << m_Value << "\n";
+        std::cout << this << " " << __FUNCTION__ << m_Value << "\n";
     }
 };
 

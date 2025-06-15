@@ -1,6 +1,10 @@
 #pragma once
 
 class GameObject;
+class IComponent
+{
+public:
+};
 class Component
 {
 public:

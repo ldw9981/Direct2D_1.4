@@ -5,6 +5,9 @@
 #include "GameObject.h"
 #include "Component.h"
 #include "MyComponent.h"
+#include "MyPlusComponent.h"
+
+
 int main()
 {
     std::cout << "Hello World!\n";
@@ -15,7 +18,8 @@ int main()
     // Scene에서 생성한다.
     GameObject* object = new GameObject;
 
-    MyComponent* ret = object->AddComponent<MyComponent>(1); 
+    MyComponent* myComp = object->AddComponent<MyComponent>(1); 
+    MyPlusComponent* myPlusComp = object->AddComponent<MyPlusComponent>();
 
     // Scene에서 여러  싱글톤 시스템들을 Update한다.
     MySystem::Instance->Update();

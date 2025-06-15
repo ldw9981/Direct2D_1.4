@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 
-class IMyComponent;
+
 class MyComponent;
 class MySystem
 {
@@ -12,15 +12,15 @@ public:
 		MySystem::Instance = this;
 	}
 
-	std::vector<IMyComponent*> m_Components;	
+	std::vector<MyComponent*> m_Components;	
 
 	void Update();
 
-	void Regist(IMyComponent* comp)
+	void Regist(MyComponent* comp)
 	{
 		m_Components.push_back(comp);
 	}
-	void Unregist(IMyComponent* comp)
+	void Unregist(MyComponent* comp)
 	{
 		for (auto it = m_Components.begin(); it != m_Components.end(); ++it) {
 			if (*it == comp) {				
