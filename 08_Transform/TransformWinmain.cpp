@@ -272,10 +272,10 @@ void ProcessKey()
         g_stoneTransform.AddTranslation(0.0f, -1.0f);
 
     if (GetAsyncKeyState('Q') & 0x8000)
-        g_stoneTransform.AddScale(-1.0f,-1.0f);
+        g_stoneTransform.AddScale(-0.001f,-0.001f);
 
     if (GetAsyncKeyState('E') & 0x8000)
-        g_stoneTransform.AddScale(+1.0f,+1.0f);
+        g_stoneTransform.AddScale(+0.001f,+0.001f);
 
     if (GetAsyncKeyState('Z') & 0x8000)
         g_stoneTransform.AddRotation(+1.0f);
@@ -301,10 +301,10 @@ void ProcessKey()
         g_manTransform.AddTranslation(0.0f, -1.0f);
     
     if (GetAsyncKeyState('T') & 0x8000)
-        g_manTransform.AddScale(-1.0f, -1.0f);
+        g_manTransform.AddScale(-0.001f, -0.001f);
     
     if (GetAsyncKeyState('U') & 0x8000)
-        g_manTransform.AddScale(+1.0f, +1.0f);
+        g_manTransform.AddScale(+0.001f, +0.001f);
     
     if (GetAsyncKeyState('B') & 0x8000)
         g_manTransform.AddRotation(+1.0f);
@@ -395,7 +395,7 @@ void Render()
 
     // Man그리기  
     matRender = MakeRenderMatrix(g_bMirror, g_bUnityCoords, g_bitmapMan->GetSize().width / 3, g_bitmapMan->GetSize().height);
-    g_manTransform.Parent = &g_stoneTransform; //Stone을 부모로 연결
+    g_manTransform.SetParent(&g_stoneTransform); //Stone을 부모로 연결
     Matrix3x2F matManWorld = g_manTransform.GetWorldMatrix();
     Matrix3x2F matManFinal;
     if (!g_bUnityCoords)
@@ -529,9 +529,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             g_bAttachCamraToStone = !g_bAttachCamraToStone;
             if (g_bAttachCamraToStone)
-                g_cameraTransform.Parent = & g_stoneTransform;
+                g_cameraTransform.SetParent(& g_stoneTransform);
             else
-                g_cameraTransform.Parent = nullptr;
+                g_cameraTransform.SetParent(nullptr);
         }
 
 

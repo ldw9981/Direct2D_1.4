@@ -1,0 +1,50 @@
+#pragma once
+#include <vector>
+#include "Component.h"
+
+class Component;
+class GameObject {
+private:
+    std::vector<Component*> components;
+
+public:
+    ~GameObject() {
+        for (Component* comp : components)
+            delete comp;    // 전방선언만으로는 가상소멸자 호출할수없다. 구체적인 선언이 include 필요
+
+        components.clear();
+    }
+
+    template<typename T, typename... Args>
+    T* AddComponent(Args&&... args) {
+        static_assert(std::is_base_of<Component, T>::value, "T must derive from Component");
+
+        T* comp = new T(std::forward<Args>(args)...);
+        comp->owner = this;
+        components.push_back(comp);
+        return comp;
+    }
+
+    template<typename T>
+    std::vector<T*> GetComponents() {
+        std::vector<T*> result;
+        for (Component* comp : components) {
+            if (auto casted = dynamic_cast<T*>(comp))
+                result.push_back(casted);
+        }
+        return result;
+    }
+
+    template<typename T>
+    bool RemoveComponent(T* target) {
+        auto it = std::remove_if(components.begin(), components.end(),
+            [target](Component* comp) { return comp == target; });
+
+        if (it != components.end()) {
+            delete* it;
+            components.erase(it, components.end());
+            return true;
+        }
+        return false;
+    }
+};
