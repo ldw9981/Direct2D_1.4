@@ -9,9 +9,19 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    GameObject test;
 
-    MyComponent* ret = test.AddComponent<MyComponent>(1);
-    ret->Update();\
+    MySystem system;
+    
+    // Scene에서 생성한다.
+    GameObject* object = new GameObject;
+
+    MyComponent* ret = object->AddComponent<MyComponent>(1); 
+
+    // Scene에서 여러  싱글톤 시스템들을 Update한다.
+    MySystem::Instance->Update();
+
+
+    delete object;
+
 
 }

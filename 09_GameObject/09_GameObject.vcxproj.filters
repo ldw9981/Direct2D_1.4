@@ -27,10 +27,7 @@
     <ClCompile Include="MyComponent.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Transform.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderSystem.cpp">
+    <ClCompile Include="MySystem.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,10 +41,7 @@
     <ClInclude Include="MyComponent.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Transform.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderSystem.h">
+    <ClInclude Include="MySystem.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
