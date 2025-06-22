@@ -63,9 +63,11 @@ public:
 	HealthComponent health;
 	void Start()
 	{
-		health.onChangeHealth.Add(&other,
-			std::bind(&OtherComponent::OnChangeHealth, &other,
-				std::placeholders::_1, std::placeholders::_2));
+		health.onChangeHealth.Add(&other, // 컨테이너에서 검색 키로 사용할 값(주소)
+			std::bind(&OtherComponent::OnChangeHealth,  // 실행할 클래스 멤버함수
+			&other,  // 실행할 클래스 인스턴스 주소			
+			std::placeholders::_1,	//BroadCast 호출에서 OnChangeHealth에 넘겨주는 자리
+			std::placeholders::_2));//BroadCast 호출에서 OnChangeHealth에 넘겨주는 자리
 	}
 };
 
