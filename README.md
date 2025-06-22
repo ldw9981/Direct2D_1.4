@@ -1,5 +1,5 @@
 Copyright (c) 2025 Dongwon Lee. All rights reserved.
 
-All source code in this repository is provided for viewing purposes only.  
-Copying, modification, distribution, use, commercial use, and educational use are prohibited  
-without the express written permission of the copyright holder.
+이 저장소의 소스코드는 저작권자의 명시적 서면 허가 없이  
+복사, 수정, 파생물 제작, 배포, 상업적/비상업적 사용, 교육적 사용 모두 금지합니다.
+
