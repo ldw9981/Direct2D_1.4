@@ -1,91 +1,80 @@
 ﻿#include <vector>
-#include <algorithm>
 #include <functional>
+#include <iostream>
+#include <math.h>
 
 template<typename... Args>
-class FMulticastDelegate
-{
-	using FHandlerType = std::function<void(Args...)>;
-	struct FSlot
-	{
-		void* InstancePtr;
-		FHandlerType Handler;
+class MultiDelegate {
+	struct Slot {
+		void* instance; // 콜백 구분용 포인터(주로 this)
+		std::function<void(Args...)> func;
 	};
-	std::vector<FSlot> Slots;
+	std::vector<Slot> slots;
 
 public:
-	// 바인딩 (언리얼은 핸들 반환, 여기선 단순화)
-	void Add(void* InInstance, FHandlerType InHandler)
-	{
-		Slots.push_back({ InInstance, InHandler });
+	void Add(void* instance, const std::function<void(Args...)>& f) {
+		slots.push_back({ instance, f });
 	}
-
-	// 인스턴스 단위로 전부 제거
-	void Remove(void* InInstance)
-	{
-		Slots.erase(
-			std::remove_if(Slots.begin(), Slots.end(),
-				[InInstance](const FSlot& s) { return s.InstancePtr == InInstance; }),
-			Slots.end());
+	// tag(포인터)로 삭제
+	void Remove(void* instance) {
+		slots.erase(
+			std::remove_if(slots.begin(), slots.end(),
+				[instance](const Slot& s) { return s.instance == instance; }),
+			slots.end());
 	}
-
-	// 모두 호출
-	void Broadcast(Args... args)
-	{
-		for (const auto& slot : Slots)
-			if (slot.Handler) slot.Handler(args...);
-	}
-
-	// 전체 제거
-	void Clear()
-	{
-		Slots.clear();
+	void Clear() { slots.clear(); }
+	void BroadCast(Args... args) const {
+		for (const auto& s : slots)
+			if (s.func) s.func(args...);
 	}
 };
 
-/////////////////////////////////////////////////////////
-// 사용 예시
-
-class FMyListener
-{
+class OtherComponent {
 public:
-	void OnDamage(int prev, int curr)
+	void OnChangeHealth(int prev, int curr)
 	{
-		printf("Listener: Damage changed %d → %d\n", prev, curr);
+		std::cout << __FUNCDNAME__ << prev << " " << curr << "\n";
 	}
 };
 
-class FHealthComponent
-{
+class HealthComponent {
 public:
 	int HP = 100;
-	FMulticastDelegate<int, int> OnChangeHealth; // Prev,Curr
-
+	MultiDelegate<int, int> onChangeHealth;	// Prev,Curr
 	void TakeDamage(int value)
 	{
-		int prev = HP;
-		HP = std::max(0, HP - value);
-		OnChangeHealth.Broadcast(prev, HP);
+		int result = std::max<int>(0, HP - value);
+		SetHP(result);
+	}
+	void SetHP(int value)
+	{
+		if (HP != value) {
+			int prev = HP;
+			HP = value;
+			onChangeHealth.BroadCast(prev, HP);
+			// 체력의 변화를 받는 함수를 모두 호출
+		}
 	}
 };
 
-/////////////////////////////////////////////////////////
+class Player {
+public:
+	OtherComponent other;
+	HealthComponent health;
+	void Start()
+	{
+		health.onChangeHealth.Add(&other,
+			std::bind(&OtherComponent::OnChangeHealth, &other,
+				std::placeholders::_1, std::placeholders::_2));
+	}
+};
 
-int main()
-{
-	FHealthComponent Health;
-	FMyListener Listener;
-
-	// 멤버 함수 바인딩 (C++11 std::bind 사용)
-	Health.OnChangeHealth.Add(&Listener,
-		std::bind(&FMyListener::OnDamage, &Listener, std::placeholders::_1, std::placeholders::_2));
-
-	Health.TakeDamage(10); // Listener: Damage changed 100 → 90
-	Health.TakeDamage(30); // Listener: Damage changed 90 → 60
-
-	// 바인딩 해제
-	Health.OnChangeHealth.Remove(&Listener);
-	Health.TakeDamage(50); // 아무 출력 없음
+int main() {
+	Player player;
+	player.Start();
+	//외부에서 TakeDamage를 호출한다.
+	player.health.TakeDamage(20);  // HP가 80이 됨 → onChangeHealth 브로드캐스트
+	player.health.TakeDamage(20);  // HP가 60이 됨 → onChangeHealth 브로드캐스트
 
 	return 0;
 }
