@@ -1,6 +1,7 @@
 ﻿#include <vector>
 #include <functional>
 #include <iostream>
+#include <math.h>
 
 template<typename... Args>
 class MultiDelegate {
@@ -28,35 +29,52 @@ public:
 	}
 };
 
-
-class Handler {
+class OtherComponent	{
 public:
-	void OnEvent(int v) { std::cout << "Handler(" << this << "): " << v << "\n"; }
+	void OnChangeHealth(int prev, int curr)
+	{
+		std::cout << __FUNCDNAME__ << prev  << " " << curr << "\n";
+	}
+};
+
+class HealthComponent {
+public:
+	int HP=100;
+	MultiDelegate<int,int> onChangeHealth;	// Prev,Curr
+	void TakeDamage(int value)
+	{
+		int result  = std::max<int>(0, HP - value);
+		SetHP(result);
+	}
+	void SetHP(int value)
+	{
+		if (HP != value)	{
+			int prev = HP;
+			HP=value;
+			onChangeHealth.BroadCast(prev,HP);
+			// 체력의 변화를 받는 함수를 모두 호출
+		}			
+	}
 };
 
 class Player {
 public:
-	MultiDelegate<int> onEvent;
-	void OnPlayerEvent(int v) { std::cout << "Player(" << this << "): " << v << "\n"; }
+	OtherComponent other;
+	HealthComponent health;
+	void Start() 
+	{ 
+		health.onChangeHealth.Add(&other,
+			std::bind(&OtherComponent::OnChangeHealth, &other,
+			std::placeholders::_1, std::placeholders::_2));
+	}
 };
 
 int main() {
-	
-	Handler h;
-	Player p;
-
-	// 멤버함수 등록 
-	p.onEvent.Add(&h, std::bind(&Handler::OnEvent, &h, std::placeholders::_1));
-	p.onEvent.BroadCast(100); 
-
-	// h의 콜백만 해제
-	p.onEvent.Remove(&h);
-
-	p.onEvent.BroadCast(200); // p만 호출
-
-	// 모두 삭제
-	p.onEvent.Clear();
-	p.onEvent.BroadCast(300); // 아무것도 호출되지 않음
+	Player player;
+	player.Start();
+	//외부에서 TakeDamage를 호출한다.
+	player.health.TakeDamage(20);  // HP가 80이 됨 → onChangeHealth 브로드캐스트
+	player.health.TakeDamage(20);  // HP가 60이 됨 → onChangeHealth 브로드캐스트
 
 	return 0;
 }
