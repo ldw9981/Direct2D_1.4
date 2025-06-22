@@ -33,7 +33,7 @@ class OtherComponent {
 public:
 	void OnChangeHealth(int prev, int curr)
 	{
-		std::cout << __FUNCDNAME__ << prev << " " << curr << "\n";
+		std::cout << "OnChange HP " << prev << "->" << curr << "\n";
 	}
 };
 
