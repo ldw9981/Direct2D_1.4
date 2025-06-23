@@ -23,7 +23,7 @@ public:
 class ObjectManager {
 	std::vector<GameObject*> objects;      // 생성된 인스턴스 주소 저장
 	std::vector<uint32_t> generations;     // 각 객체의 Generation
-	std::queue<uint32_t> freeIndexes;          // 파괴된 객체의 id를 재사용
+	std::queue<uint32_t> freeIndexes;          // 파괴된 객체의 index를 재사용
 		
 	
 public:
@@ -42,7 +42,7 @@ public:
 			objects.push_back(new T());	// 뒤쪽에 인스턴스 포인터 저장
 		}
 		else { // 재활용 가능한 인덱스가 있다면
-			index = freeIndexes.front();			// 보관중인 ID 재사용 
+			index = freeIndexes.front();			// 보관중인 index 재사용 
 			freeIndexes.pop();					// 큐에서 제거
 			generations[index]++;				// 세대 증가 (새 오브젝트 의미)		
 			assert(objects[index] == nullptr);
@@ -60,7 +60,7 @@ public:
 		if (IsValid(h)) {
 			delete objects[h.index];
 			objects[h.index] = nullptr;
-			freeIndexes.push(h.index); // id 재사용 가능하게 큐에 저장
+			freeIndexes.push(h.index); // index 재사용 가능하게 큐에 저장
 			// generation은 다음 생성에서 증가
 		}
 	}
