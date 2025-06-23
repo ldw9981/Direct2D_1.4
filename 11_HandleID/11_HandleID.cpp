@@ -47,11 +47,11 @@ public:
 			generations[index]++;				// 세대 증가 (새 오브젝트 의미)		
 			assert(objects[index] == nullptr);
 			objects[index] = new T();		// 재활용하는 인덱스에 저장
-		}
+		}	
 		
 		hRet.index = index;
 		hRet.generation = generations[index];
-		objects[index]->handle = hRet;
+		objects[index]->handle = hRet;	// 생성한 객체내부에 핸들값 저장
 		return hRet;
 	}
 
