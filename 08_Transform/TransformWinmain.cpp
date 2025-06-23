@@ -343,6 +343,7 @@ void Render()
     Matrix3x2F matCameraInv = matCameraWorld;
     PrintText(L"[F4]Stone에 붙이기", 50, 260);
     PrintPoint(L"Camera 이동 <^>", D2D1::Point2(matCameraWorld.dx, matCameraWorld.dy), 50, 280);
+    PrintMatrix(L"카메라 월드행렬", matCameraWorld, 200, 250);
 
 
     matCameraInv.Invert();
