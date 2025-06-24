@@ -101,7 +101,7 @@ int main() {
 	if (mgr.Get(h1) == nullptr)
 		std::cout << "h1 is destroyed, cannot use anymore." << std::endl;
 
-	// 같은 ID에 새로운 Generation으로 재생성될 수 있음
+	// 같은 Index에 새로운 Generation으로 재생성될 수 있음
 	GameObjectHandle h3 = mgr.Create<GameObject>();
 	if (!mgr.IsValid(h1) && mgr.IsValid(h3))
 		std::cout << "h1 is invalid, but h3 is new valid object." << std::endl;
