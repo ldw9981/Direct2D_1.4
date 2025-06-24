@@ -5,44 +5,31 @@
 
 void Transform::SetTranslation(float x, float y)
 {
-	LocalDirty = true;
+	Dirty = true;
 	Translation.x = x; Translation.y = y;
-	MarkWorldDirty();
+	MarkDirty();
 }
 
 void Transform::SetRotation(float InRotation)
 {
-	LocalDirty = true;  Rotation = InRotation;
-	MarkWorldDirty();
+	Dirty = true;  Rotation = InRotation;
+	MarkDirty();
 }
 
 void Transform::SetScale(float scaleX, float scaleY)
 {
-	LocalDirty = true;  Scale.x = scaleX; Scale.y = scaleY;
-	MarkWorldDirty();
-}
-
-// 복사없이 참조로 리턴하면서 수정은 불가
-const D2D1::Matrix3x2F& Transform::GetLocalMatrix()
-{
-	if (LocalDirty)
-	{
-		//     CachedLocal = D2D1::Matrix3x2F::Scale(Scale.x, Scale.y) *
-		//        D2D1::Matrix3x2F::Rotation(Rotation) *
-		//       D2D1::Matrix3x2F::Translation(Translation.x, Translation.y);        
-		MakeLocalMatrix();
-		LocalDirty = false;
-	}
-	return CachedLocal;
+	Dirty = true;  Scale.x = scaleX; Scale.y = scaleY;
+	MarkDirty();
 }
 
 // 복사없이 참조로 리턴하면서 수정은 불가
 const D2D1::Matrix3x2F& Transform::GetWorldMatrix()
 {
-	if (WorldDirty || LocalDirty)
+	if (Dirty )
 	{
-		CachedWorld = Parent ? GetLocalMatrix() * Parent->GetWorldMatrix() : GetLocalMatrix();
-		WorldDirty = false;
+		D2D1::Matrix3x2F LocalMatrix = MakeLocalMatrix(); // 로컬행렬 계산
+		CachedWorld = Parent ? LocalMatrix * Parent->GetWorldMatrix() : LocalMatrix;
+		Dirty = false;
 	}
 	return CachedWorld;
 }
@@ -61,7 +48,7 @@ void Transform::SetParent(Transform* Target)
 		Parent->AddChild(this);	//부모가 있으면 추가
 
 	// 부모가 없어지거나 새로 생겼으니 자식에게 World바꾸라고 전파
-	MarkWorldDirty();
+	MarkDirty();
 }
 
 void Transform::Reset()
@@ -69,42 +56,41 @@ void Transform::Reset()
 	Scale = { 1.0f, 1.0f };
 	Rotation = { 0.0f };
 	Translation = { 0.0f, 0.0f };
-	LocalDirty = true;
-	MarkWorldDirty();
+	Dirty = true;
+	MarkDirty();
 }
 
 void Transform::AddTranslation(float x, float y)
 {
-	LocalDirty = true;
+	Dirty = true;
 	Translation.x += x;
 	Translation.y += y;
-
-	MarkWorldDirty();
+	MarkDirty();
 }
 
 void Transform::AddRotation(float degree)
 {
-	LocalDirty = true;
+	Dirty = true;
 	Rotation += degree;
 	
-	MarkWorldDirty();
+	MarkDirty();
 }
 
 void Transform::AddScale(float x,float y)
 {
-	LocalDirty = true;
+	Dirty = true;
 	Scale.x += x;
 	Scale.y += y;
 	
-	MarkWorldDirty();
+	MarkDirty();
 }
 
-void Transform::MakeLocalMatrix()
+D2D1::Matrix3x2F Transform::MakeLocalMatrix()
 {
 	float s = sinf(Rotation * DEG2RAD);
 	float c = cosf(Rotation * DEG2RAD);
 
-	CachedLocal = D2D1::Matrix3x2F(
+	return D2D1::Matrix3x2F(
 		c * Scale.x, -s * Scale.y,
 		s * Scale.x, c * Scale.y,
 		Translation.x, Translation.y
@@ -128,11 +114,11 @@ void Transform::RemoveChild(Transform* target)
 	}
 }
 
-void Transform::MarkWorldDirty()
+void Transform::MarkDirty()
 {
-	WorldDirty = true;
+	Dirty = true;
 	for (auto it = Children.begin(); it != Children.end(); ++it)
 	{
-		(*it)->MarkWorldDirty();
+		(*it)->MarkDirty();
 	}
 }
