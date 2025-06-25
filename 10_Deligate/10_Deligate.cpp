@@ -88,7 +88,7 @@ public:
 		Target = instance;
 		hTarget = instance->GetHandle();
 
-		wptrTarget = WeakObjectPtr<Player>(instance);
+		wptrTarget.Set(instance);
 	}
 	void Attack()
 	{

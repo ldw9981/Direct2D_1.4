@@ -80,14 +80,14 @@ public:
 	WeakObjectPtr()=default;
 	WeakObjectPtr(T* instance)
 	{
-		ptr = instance;
-		handle = instance->GetHandle();
+		Set(instance);
 	}
 
 	bool IsValid() const {
 		return ptr != nullptr && ObjectHandleTable::Instance().IsValid(handle);
 	}
 
+	void Set(T* instance) {  ptr = instance; handle = instance->GetHandle(); 	}
 	T* Get() const {
 		return ObjectHandleTable::Instance().IsValid(handle) ? ptr : nullptr;
 	}
