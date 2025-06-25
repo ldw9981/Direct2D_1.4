@@ -1,0 +1,1 @@
+#include "BitmapResource.h"
