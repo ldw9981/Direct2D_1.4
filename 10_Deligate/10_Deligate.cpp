@@ -20,6 +20,7 @@ class MultiDelegate {
 	std::vector<Slot> slots;
 
 public:
+	// Handle을 같이 받는다.
 	void Add(ObjectHandle handle, const std::function<void(Args...)>& f) {
 		slots.push_back({ handle, f });
 	}
@@ -34,6 +35,7 @@ public:
 	void BroadCast(Args... args) const {
 		for (const auto& s : slots)
 		{
+			// Handle로 테이블에서 유효한지 검사
 			if (ObjectHandleTable::Instance().IsValid(s.handle))
 				s.func(args...);
 		}
@@ -78,25 +80,24 @@ public:
 	HealthComponent health;
 	Player* Target=nullptr;
 	ObjectHandle hTarget;
-
 	WeakObjectPtr<Player> wptrTarget;
 
-	Player() = default;
-
+	// 공격할 GameObject의 insance와 Handle을 보관한다.
 	void SetTarget(Player* instance)
 	{
 		Target = instance;
 		hTarget = instance->GetHandle();
-
-		wptrTarget.Set(instance);
+		wptrTarget.Set(instance); // 클래스 타입으로도 테스트
 	}
 	void Attack()
 	{
+		// 타겟이 있고 Handle도 유효한지 확인
 		if (Target != nullptr && ObjectHandleTable::Instance().IsValid(hTarget))
 		{
 			Target->health.TakeDamage(10);
 		}		
 	
+		// 사용하기 편하게 클래스로 같은작업 도와주는 WeakObjectPtr
 		if (wptrTarget.IsValid())
 		{
 			wptrTarget->health.TakeDamage(10);
