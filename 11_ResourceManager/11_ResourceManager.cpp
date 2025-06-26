@@ -231,7 +231,7 @@ int main()
 		if (input == 'q' || input == 'Q') {
 			break; // 'q' 입력 시 종료
 		}
-		if (input == 'l' || input == 'L') 
+		if (input == 'i' || input == 'I') 
 		{
 			
 			ComPtr<ID2D1Bitmap1> bitmap;
