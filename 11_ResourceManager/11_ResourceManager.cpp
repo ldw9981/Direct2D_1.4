@@ -221,6 +221,7 @@ int main()
 	CoInitialize(NULL);
 	Initialize(GetConsoleWindow());
    
+	PrintMemoryUsage();
 	std::queue<ComPtr<ID2D1Bitmap1>> bitmaps;
 
 	// 메인 루프
