@@ -14,6 +14,9 @@
 #include <wincodec.h>
 #pragma comment(lib,"windowscodecs.lib")
 
+#include <iostream>
+#include <conio.h> // _getch() 사용을 위한 헤더
+#include <queue>
 
 using namespace Microsoft::WRL;
 
@@ -29,7 +32,7 @@ ComPtr<IWICImagingFactory> g_wicImagingFactory;
 
 
 ComPtr<ID2D1Bitmap1> g_d2dBitmapFromFile;
-
+ComPtr<IDXGIAdapter3> g_dxgiAdapter;
 
 UINT g_width = 1024;
 UINT g_height = 768;
@@ -71,13 +74,20 @@ HRESULT CreateBitmapFromFile(const wchar_t* path, ID2D1Bitmap1** outBitmap)
 
 	// ⑤ Direct2D 비트맵 속성 (premultiplied alpha, B8G8R8A8_UNORM)
 	D2D1_BITMAP_PROPERTIES1 bmpProps = D2D1::BitmapProperties1(
-		D2D1_BITMAP_OPTIONS_NONE,
+		D2D1_BITMAP_OPTIONS_TARGET ,
 		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
 	);
 
 	// ⑥ DeviceContext에서 WIC 비트맵으로부터 D2D1Bitmap1 생성
 	hr = g_d2dDeviceContext->CreateBitmapFromWicBitmap(converter.Get(), &bmpProps, outBitmap);
 	return hr;
+}
+
+void PrintMemoryUsage() {
+	DXGI_QUERY_VIDEO_MEMORY_INFO memInfo = {};
+	g_dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &memInfo);
+
+	std::cout << "CurrentUsage: " << (memInfo.CurrentUsage / 1024.0 / 1024.0) << " MB" << std::endl;
 }
 
 
@@ -97,8 +107,12 @@ void Initialize(HWND hwnd)
 	D2D1_FACTORY_OPTIONS options = {};
 	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, options, d2dFactory.GetAddressOf());
 
-	ComPtr<IDXGIDevice> dxgiDevice;
+	ComPtr<IDXGIDevice2> dxgiDevice;
+	ComPtr<IDXGIAdapter> dxgiAdapter;
 	g_d3dDevice.As(&dxgiDevice);
+	dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
+	dxgiAdapter.As(&g_dxgiAdapter);
+	
 	ComPtr<ID2D1Device7> d2dDevice;
 	d2dFactory->CreateDevice((dxgiDevice.Get()), d2dDevice.GetAddressOf());
 	d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, g_d2dDeviceContext.GetAddressOf());
@@ -149,6 +163,8 @@ void Uninitialize()
 	g_dxgiSwapChain = nullptr;
 	g_d2dDeviceContext = nullptr;
 	g_d2dBitmapTarget = nullptr;
+	g_dxgiAdapter = nullptr;
+
 }
 
 
@@ -158,6 +174,46 @@ int main()
 	CoInitialize(NULL);
 	Initialize(GetConsoleWindow());
    
+	std::queue<ComPtr<ID2D1Bitmap1>> bitmaps;
+
+	// 메인 루프
+	char input;
+	while (input=_getch())
+	{
+		if (input == 'q' || input == 'Q') {
+			break; // 'q' 입력 시 종료
+		}
+		if (input == 'i' || input == 'I') 
+		{
+			
+			ComPtr<ID2D1Bitmap1> bitmap;
+			CreateBitmapFromFile(L"../Resource/tree.jpg", bitmap.GetAddressOf());
+			if (bitmap) {
+				bitmaps.push(bitmap);
+				std::cout << "Image loaded. Total images: " << bitmaps.size() << std::endl;
+			}
+			else {
+				std::cout << "Failed to load image." << std::endl;
+			}
+			PrintMemoryUsage();
+		}
+		if (input == 'r' || input == 'R')
+		{
+
+			if(!bitmaps.empty()) {
+				auto front = bitmaps.front();
+				bitmaps.pop();
+				front.Reset(); // 강제 참조 해제
+				std::cout << "Image removed. Total images: " << bitmaps.size() << std::endl;
+			}			
+			else {
+				std::cout << "No images to remove." << std::endl;
+			}
+		
+		
+			PrintMemoryUsage();
+		}
+	}
 
 	Uninitialize();
 	CoUninitialize();
