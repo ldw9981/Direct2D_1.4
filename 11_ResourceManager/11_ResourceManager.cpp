@@ -14,9 +14,16 @@
 #include <wincodec.h>
 #pragma comment(lib,"windowscodecs.lib")
 
+#include <psapi.h>                // GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS_EX
+#pragma comment(lib, "psapi.lib")
+
+
 #include <iostream>
 #include <conio.h> // _getch() 사용을 위한 헤더
 #include <queue>
+
+
+	
 
 using namespace Microsoft::WRL;
 
@@ -51,15 +58,18 @@ HRESULT CreateBitmapFromFile(const wchar_t* path, ID2D1Bitmap1** outBitmap)
 	// ① 디코더 생성
 	HRESULT hr = g_wicImagingFactory->CreateDecoderFromFilename(
 		path, nullptr, GENERIC_READ, WICDecodeMetadataCacheOnLoad, &decoder);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) 
+		return hr;
 
 	// ② 첫 프레임 얻기
 	hr = decoder->GetFrame(0, &frame);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) 
+		return hr;
 
 	// ③ 포맷 변환기 생성
 	hr = g_wicImagingFactory->CreateFormatConverter(&converter);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) 
+		return hr;
 
 	// ④ GUID_WICPixelFormat32bppPBGRA로 변환
 	hr = converter->Initialize(
@@ -70,16 +80,19 @@ HRESULT CreateBitmapFromFile(const wchar_t* path, ID2D1Bitmap1** outBitmap)
 		0.0f,
 		WICBitmapPaletteTypeCustom
 	);
-	if (FAILED(hr)) return hr;
+	if (FAILED(hr)) 
+		return hr;
 
 	// ⑤ Direct2D 비트맵 속성 (premultiplied alpha, B8G8R8A8_UNORM)
 	D2D1_BITMAP_PROPERTIES1 bmpProps = D2D1::BitmapProperties1(
-		D2D1_BITMAP_OPTIONS_TARGET ,
+		D2D1_BITMAP_OPTIONS_NONE,
 		D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
 	);
 
 	// ⑥ DeviceContext에서 WIC 비트맵으로부터 D2D1Bitmap1 생성
 	hr = g_d2dDeviceContext->CreateBitmapFromWicBitmap(converter.Get(), &bmpProps, outBitmap);
+	assert(SUCCEEDED(hr));
+
 	return hr;
 }
 
@@ -87,7 +100,20 @@ void PrintMemoryUsage() {
 	DXGI_QUERY_VIDEO_MEMORY_INFO memInfo = {};
 	g_dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &memInfo);
 
-	std::cout << "CurrentUsage: " << (memInfo.CurrentUsage / 1024.0 / 1024.0) << " MB" << std::endl;
+	std::cout << "VRAM: " << (memInfo.CurrentUsage / 1024.0 / 1024.0) << " MB" << std::endl;
+
+
+	HANDLE hProcess = GetCurrentProcess();
+	PROCESS_MEMORY_COUNTERS_EX pmc;
+	pmc.cb = sizeof(PROCESS_MEMORY_COUNTERS_EX);
+
+	// 현재 프로세스의 메모리 사용 정보 조회
+	GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+
+
+	std::cout << "DRAM: " << (pmc.WorkingSetSize / 1024 / 1024) << " MB" << std::endl;
+
+	std::cout << "PAGE: " << (pmc.PagefileUsage / 1024 / 1024) << " MB" << std::endl;
 }
 
 
@@ -187,7 +213,7 @@ int main()
 		{
 			
 			ComPtr<ID2D1Bitmap1> bitmap;
-			CreateBitmapFromFile(L"../Resource/tree.jpg", bitmap.GetAddressOf());
+			CreateBitmapFromFile(L"../Resource/50mb.bmp", bitmap.GetAddressOf());
 			if (bitmap) {
 				bitmaps.push(bitmap);
 				std::cout << "Image loaded. Total images: " << bitmaps.size() << std::endl;
@@ -201,16 +227,18 @@ int main()
 		{
 
 			if(!bitmaps.empty()) {
-				auto front = bitmaps.front();
+				
 				bitmaps.pop();
-				front.Reset(); // 강제 참조 해제
 				std::cout << "Image removed. Total images: " << bitmaps.size() << std::endl;
 			}			
 			else {
 				std::cout << "No images to remove." << std::endl;
 			}
 		
-		
+			ComPtr<IDXGIDevice3> dxgiDevice;
+			g_d3dDevice.As(&dxgiDevice);
+			dxgiDevice->Trim();  // 드라이버에 메모리 해제 요청
+			
 			PrintMemoryUsage();
 		}
 	}
