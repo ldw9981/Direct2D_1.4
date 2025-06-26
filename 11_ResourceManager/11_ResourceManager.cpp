@@ -21,7 +21,9 @@
 #include <iostream>
 #include <conio.h> // _getch() 사용을 위한 헤더
 #include <queue>
-
+#include <string>
+#include <sstream>
+#include <iomanip>
 
 	
 
@@ -40,6 +42,7 @@ ComPtr<IWICImagingFactory> g_wicImagingFactory;
 
 ComPtr<ID2D1Bitmap1> g_d2dBitmapFromFile;
 ComPtr<IDXGIAdapter3> g_dxgiAdapter;
+ComPtr<IDXGIDevice3> g_dxgiDevice;
 
 UINT g_width = 1024;
 UINT g_height = 768;
@@ -96,11 +99,29 @@ HRESULT CreateBitmapFromFile(const wchar_t* path, ID2D1Bitmap1** outBitmap)
 	return hr;
 }
 
+std::string FormatBytes(UINT64 bytes) {
+	constexpr double KB = 1024.0;
+	constexpr double MB = KB * 1024.0;
+	constexpr double GB = MB * 1024.0;
+
+	std::ostringstream oss;
+	oss << std::fixed << std::setprecision(2);
+
+	if (bytes >= static_cast<UINT64>(GB))
+		oss << (bytes / GB) << " GB";
+	else if (bytes >= static_cast<UINT64>(MB))
+		oss << (bytes / MB) << " MB";
+	else if (bytes >= static_cast<UINT64>(KB))
+		oss << (bytes / KB) << " KB";
+	else
+		oss << bytes << " B";
+
+	return oss.str();
+}
 void PrintMemoryUsage() {
 	DXGI_QUERY_VIDEO_MEMORY_INFO memInfo = {};
 	g_dxgiAdapter->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &memInfo);
-
-	std::cout << "VRAM: " << (memInfo.CurrentUsage / 1024.0 / 1024.0) << " MB" << std::endl;
+	std::cout << "VRAM: " << FormatBytes(memInfo.CurrentUsage) << std::endl;
 
 
 	HANDLE hProcess = GetCurrentProcess();
@@ -109,11 +130,8 @@ void PrintMemoryUsage() {
 
 	// 현재 프로세스의 메모리 사용 정보 조회
 	GetProcessMemoryInfo(hProcess, (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-
-
-	std::cout << "DRAM: " << (pmc.WorkingSetSize / 1024 / 1024) << " MB" << std::endl;
-
-	std::cout << "PAGE: " << (pmc.PagefileUsage / 1024 / 1024) << " MB" << std::endl;
+	std::cout << "DRAM: " << FormatBytes(pmc.WorkingSetSize) << std::endl;	
+	std::cout << "PageFile: " << FormatBytes(pmc.PagefileUsage-pmc.WorkingSetSize) << std::endl;
 }
 
 
@@ -133,14 +151,16 @@ void Initialize(HWND hwnd)
 	D2D1_FACTORY_OPTIONS options = {};
 	D2D1CreateFactory(D2D1_FACTORY_TYPE_SINGLE_THREADED, options, d2dFactory.GetAddressOf());
 
-	ComPtr<IDXGIDevice2> dxgiDevice;
+
 	ComPtr<IDXGIAdapter> dxgiAdapter;
-	g_d3dDevice.As(&dxgiDevice);
-	dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
+	g_d3dDevice.As(&g_dxgiDevice);
+	g_dxgiDevice->GetAdapter(dxgiAdapter.GetAddressOf());
 	dxgiAdapter.As(&g_dxgiAdapter);
 	
+	g_d3dDevice.As(&g_dxgiDevice);
+	
 	ComPtr<ID2D1Device7> d2dDevice;
-	d2dFactory->CreateDevice((dxgiDevice.Get()), d2dDevice.GetAddressOf());
+	d2dFactory->CreateDevice((g_dxgiDevice.Get()), d2dDevice.GetAddressOf());
 	d2dDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, g_d2dDeviceContext.GetAddressOf());
 
 	ComPtr<IDXGIFactory7> dxgiFactory;
@@ -190,8 +210,9 @@ void Uninitialize()
 	g_d2dDeviceContext = nullptr;
 	g_d2dBitmapTarget = nullptr;
 	g_dxgiAdapter = nullptr;
-
+	g_dxgiDevice = nullptr;
 }
+
 
 
 int main()
@@ -204,12 +225,13 @@ int main()
 
 	// 메인 루프
 	char input;
+	bool TrimMode = false;
 	while (input=_getch())
-	{
+	{		
 		if (input == 'q' || input == 'Q') {
 			break; // 'q' 입력 시 종료
 		}
-		if (input == 'i' || input == 'I') 
+		if (input == 'l' || input == 'L') 
 		{
 			
 			ComPtr<ID2D1Bitmap1> bitmap;
@@ -234,11 +256,12 @@ int main()
 			else {
 				std::cout << "No images to remove." << std::endl;
 			}
-		
-			ComPtr<IDXGIDevice3> dxgiDevice;
-			g_d3dDevice.As(&dxgiDevice);
-			dxgiDevice->Trim();  // 드라이버에 메모리 해제 요청
-			
+			PrintMemoryUsage();
+		}
+		if (input == 't' || input == 'T')
+		{
+			std::cout << "IDXGIDevice3::Trim()" << std::endl;
+			g_dxgiDevice->Trim();  // 드라이버에 메모리 해제 요청
 			PrintMemoryUsage();
 		}
 	}
