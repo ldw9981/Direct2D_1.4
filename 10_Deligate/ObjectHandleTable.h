@@ -94,5 +94,12 @@ public:
 
 	T* operator->() const {
 		return ptr; // 호출 전에 반드시 유효성 검사할 것
-	}	
+	}
+	explicit operator bool() const {
+		return IsValid();
+	}
+	void Reset() {
+		ptr = nullptr;
+		handle = ObjectHandle{};
+	}
 };
