@@ -37,7 +37,7 @@ void LoadSpriteSheet(const std::string& filePath, SpriteSheet& spriteSheet)
 		spriteSheet.sprites = j["sprites"].get<std::vector<Sprite>>();
 
 		// 스프라이트 이름으로 인덱스 맵 생성
-		for (size_t i = 0; i < spriteSheet.sprites.size(); ++i) {
+		for (int i = 0; i < spriteSheet.sprites.size(); ++i) {
 			spriteSheet.spriteIndexMap[spriteSheet.sprites[i].name] = i;
 		}
 	}
