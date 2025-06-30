@@ -52,6 +52,12 @@ void from_json(const nlohmann::json& j, FrameInfo& frameinfo) {
 	j.at("time").get_to(frameinfo.duration);
 }
 
+void from_json(const nlohmann::json& j, EventInfo& eventinfo) {
+	j.at("function").get_to(eventinfo.function);
+	j.at("parameter").get_to(eventinfo.parameter);
+	j.at("time").get_to(eventinfo.time);
+}
+
 void LoadAnimationClip(const std::string& filePath, AnimationClip& clip, const SpriteSheet& SpriteSheet)
 {
 	std::ifstream inFile(filePath);
@@ -65,6 +71,7 @@ void LoadAnimationClip(const std::string& filePath, AnimationClip& clip, const S
 		clip.loop = j["loop"];
 		clip.duration = j["duration"];
 		clip.frames = j["frames"].get<std::vector<FrameInfo>>();
+		clip.events = j["events"].get<std::vector<EventInfo>>();
 
 		// 프레임의 sprite 이름을 인덱스로 변환
 		for (auto& frame : clip.frames) {
