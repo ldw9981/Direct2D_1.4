@@ -10,6 +10,9 @@ struct ObjectHandle {
 	uint32_t generation = 0;
 };
 
+/*
+	기존 ObjectTable로는 해결할수 없는  객체풀의 인스턴스를 사용할때의 문제를 해결합니다. 
+*/
 class ObjectHandleTable : public Singleton<ObjectHandleTable>
 {
 	//ObjectHandleTable의 생성자 / 소멸자를 private으로 선언했기 때문에, 

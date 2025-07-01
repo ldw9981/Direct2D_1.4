@@ -1,18 +1,19 @@
 #pragma once
 #include "ObjectHandleTable.h"
+#include "ObjectTable.h"
 
 class Object
 {
-	ObjectHandle m_handle;
+	
 public:
 	Object()
-	{
-		m_handle = ObjectHandleTable::Instance().CreateHandle(this);
+	{		
+		ObjectTable::Instance().Register(this); // 테이블에 등록
 	}
 	virtual ~Object()
 	{
-		ObjectHandleTable::Instance().DestroyHandle(m_handle);
+		ObjectTable::Instance().Unregister(this); // 테이블에서 제거
 	}
-	ObjectHandle GetHandle() { return m_handle; }
+	
 };
 

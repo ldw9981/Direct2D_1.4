@@ -33,6 +33,9 @@
     <ClCompile Include="Singleton.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ObjectTable.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ObjectHandleTable.h">
@@ -51,6 +54,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Singleton.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTable.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
