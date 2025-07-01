@@ -7,6 +7,10 @@
 #include "Singleton.h"
 
 class Object;
+/*
+	이것은 이해를 돕기위한 예시 클래스 입니다.
+	실제 게임에서는 ObjectTable을 Scene이나 GameManager와 같은곳에서 포인터를 검증할수 있도록 합니다.
+*/
 class ObjectTable : public Singleton<ObjectTable>
 {
 	//ObjectTable의 생성자 / 소멸자를 private으로 선언했기 때문에, 
