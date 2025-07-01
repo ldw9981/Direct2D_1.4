@@ -19,7 +19,7 @@ private:
 	std::unordered_set<Object*> m_objects;      // 생성된 인스턴스 주소 저장
 public:
 	
-	// 핸들이 가리키는 오브젝트가 유효한지 검사
+	// 인스턴스 주소가 존재하는지 검사
 	bool IsValid(Object* instance) {
 		return m_objects.find(instance) != m_objects.end();
 	}
