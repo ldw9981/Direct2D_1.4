@@ -223,7 +223,7 @@
                         {
                             "parameter": "grounded",
                             "mode": "IfNot",
-                            "threshold": 0.009999999776482582
+                            "threshold": 0.0
                         }
                     ]
                 }
