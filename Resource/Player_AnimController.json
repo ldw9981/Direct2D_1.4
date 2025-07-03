@@ -1,0 +1,296 @@
+{
+    "controllerName": "Player",
+    "parameters": [
+        {
+            "name": "velocityX",
+            "type": "Float",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        },
+        {
+            "name": "velocityY",
+            "type": "Float",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        },
+        {
+            "name": "grounded",
+            "type": "Bool",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        },
+        {
+            "name": "hurt",
+            "type": "Trigger",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        },
+        {
+            "name": "dead",
+            "type": "Bool",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        },
+        {
+            "name": "victory",
+            "type": "Trigger",
+            "defaultFloat": 0.0,
+            "defaultInt": 0,
+            "defaultBool": false
+        }
+    ],
+    "defaultState": "Player-Idle",
+    "states": [
+        {
+            "name": "Player-Idle",
+            "motionName": "PlayerIdle",
+            "clipLength": 3.1666665077209474,
+            "loop": true,
+            "transitions": [
+                {
+                    "fromState": "Player-Idle",
+                    "toState": "Player-Run",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "velocityX",
+                            "mode": "Greater",
+                            "threshold": 0.0010000000474974514
+                        }
+                    ]
+                },
+                {
+                    "fromState": "Player-Idle",
+                    "toState": "Player-Jump",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "grounded",
+                            "mode": "IfNot",
+                            "threshold": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Spawn",
+            "motionName": "PlayerSpawn",
+            "clipLength": 1.6666667461395264,
+            "loop": false,
+            "transitions": [
+                {
+                    "fromState": "Player-Spawn",
+                    "toState": "Player-Idle",
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "",
+                            "mode": "Always",
+                            "threshold": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Death",
+            "motionName": "PlayerDeath",
+            "clipLength": 1.3333333730697632,
+            "loop": false,
+            "transitions": [
+                {
+                    "fromState": "Player-Death",
+                    "toState": "Player-Spawn",
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "dead",
+                            "mode": "IfNot",
+                            "threshold": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Hurt",
+            "motionName": "PlayerHurt",
+            "clipLength": 0.9166666865348816,
+            "loop": false,
+            "transitions": [
+                {
+                    "fromState": "Player-Hurt",
+                    "toState": "Player-Idle",
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "dead",
+                            "mode": "IfNot",
+                            "threshold": 0.0
+                        }
+                    ]
+                },
+                {
+                    "fromState": "Player-Hurt",
+                    "toState": "Player-Death",
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "dead",
+                            "mode": "If",
+                            "threshold": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Jump",
+            "motionName": "PlayerJump",
+            "clipLength": 1.0208333730697632,
+            "loop": false,
+            "transitions": [
+                {
+                    "fromState": "Player-Jump",
+                    "toState": "Player-Land",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "grounded",
+                            "mode": "If",
+                            "threshold": 0.0
+                        },
+                        {
+                            "parameter": "velocityX",
+                            "mode": "Less",
+                            "threshold": 0.10000000149011612
+                        }
+                    ]
+                },
+                {
+                    "fromState": "Player-Jump",
+                    "toState": "Player-Run",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "grounded",
+                            "mode": "If",
+                            "threshold": 0.0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Run",
+            "motionName": "PlayerRun",
+            "clipLength": 0.6041666269302368,
+            "loop": true,
+            "transitions": [
+                {
+                    "fromState": "Player-Run",
+                    "toState": "Player-Idle",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "velocityX",
+                            "mode": "Less",
+                            "threshold": 0.0010000000474974514
+                        }
+                    ]
+                },
+                {
+                    "fromState": "Player-Run",
+                    "toState": "Player-Jump",
+                    "exitTime": -1.0,
+                    "hasExitTime": false,
+                    "conditions": [
+                        {
+                            "parameter": "grounded",
+                            "mode": "IfNot",
+                            "threshold": 0.009999999776482582
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "Player-Victory",
+            "motionName": "PlayerVictory",
+            "clipLength": 1.0833333730697632,
+            "loop": false,
+            "transitions": []
+        },
+        {
+            "name": "Player-Land",
+            "motionName": "PlayerLand",
+            "clipLength": 0.1041666716337204,
+            "loop": false,
+            "transitions": [
+                {
+                    "fromState": "Player-Land",
+                    "toState": "Player-Idle",
+                    "exitTime": 0.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "",
+                            "mode": "Always",
+                            "threshold": 0.0
+                        }
+                    ]
+                },
+                {
+                    "fromState": "Player-Land",
+                    "toState": "Player-Run",
+                    "exitTime": 0.0,
+                    "hasExitTime": true,
+                    "conditions": [
+                        {
+                            "parameter": "velocityX",
+                            "mode": "Greater",
+                            "threshold": 0.009999999776482582
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "anyStateTransitions": [
+        {
+            "toState": "Player-Hurt",
+            "conditions": [
+                {
+                    "parameter": "hurt",
+                    "mode": "If",
+                    "threshold": 0.0
+                }
+            ]
+        },
+        {
+            "toState": "Player-Victory",
+            "conditions": [
+                {
+                    "parameter": "victory",
+                    "mode": "If",
+                    "threshold": 0.0
+                }
+            ]
+        }
+    ]
+}
