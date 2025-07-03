@@ -28,7 +28,7 @@ int main()
 	float testTime = 60.0f;
 	for (elapedTime = 0 ;  elapedTime < testTime; elapedTime += deltaTime)
 	{
-		Sleep(100); // 0.1초 대기 (실제 게임에서는 프레임 단위로 업데이트)
+		Sleep(deltaTime*1000); // 대기 
 		animInstance.Update(deltaTime); // 0.1초 단위로 업데이트
 		
 		if (GetAsyncKeyState('A') & 0x8000) {
