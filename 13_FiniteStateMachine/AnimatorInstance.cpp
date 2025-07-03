@@ -26,6 +26,11 @@ void AnimatorInstance::SetBool(const std::string& name, bool value)
 {
 	m_BoolParameters[name] = value;
 }
+void AnimatorInstance::SetTrigger(const std::string& name, bool value)
+{
+	// Trigger는 Bool로 처리되므로 Bool 파라미터에 저장
+	m_TriggerParameters[name] = value;
+}
 
 int AnimatorInstance::GetInt(const std::string& name) const
 {
@@ -55,6 +60,16 @@ float AnimatorInstance::GetFloat(const std::string& name) const
 		return it->second;
 	}
 	return 0.0f; // 기본값
+}
+
+bool AnimatorInstance::GetTrigger(const std::string& name) const
+{
+	auto it = m_TriggerParameters.find(name);
+	assert(it != m_TriggerParameters.end());
+	if (it != m_TriggerParameters.end()) {
+		return it->second;
+	}
+	return false; // 기본값
 }
 
 bool AnimatorInstance::CheckCondition(const std::string& param, const std::string& mode, float threshold)
@@ -88,6 +103,13 @@ bool AnimatorInstance::CheckCondition(const std::string& param, const std::strin
 		if (mode == "Less") return val < threshold;
 		if (mode == "Equals") return val == threshold;
 		if (mode == "NotEqual") return val != threshold;
+		break;
+	}
+	case ParameterType::Trigger:
+	{
+		bool val = GetTrigger(param);
+		if (mode == "If") return val;
+		if (mode == "IfNot") return !val;
 		break;
 	}
 	default:
@@ -126,6 +148,10 @@ void AnimatorInstance::SetAnimatorController(AnimatorController* controller)
 		else if (param.type == "Bool") {
 			RegisterParameter(param.name, ParameterType::Bool);
 			SetBool(param.name, param.defaultBool);
+		}
+		else if (param.type == "Trigger") {
+			RegisterParameter(param.name, ParameterType::Bool);
+			SetTrigger(param.name, param.defaultBool);
 		}
 	}
 
