@@ -7,29 +7,80 @@
 #include "AnimatorInstance.h"
 #include "AnimatorController.h"
 
-void AnimatorInstance::RegisterParameter(const std::string& name, ParameterType type)
-{
-	m_ParameterTypes[name] = type;
-}
-
-void AnimatorInstance::SetInt(const std::string& name, int value)
+void AnimatorInstance::RegisterParameterInt(const std::string& name, int value)
 {
 	m_IntParameters[name] = value;
 }
 
-void AnimatorInstance::SetFloat(const std::string& name, float value)
+void AnimatorInstance::RegisterParameterFloat(const std::string& name, float value)
 {
 	m_FloatParameters[name] = value;
 }
 
-void AnimatorInstance::SetBool(const std::string& name, bool value)
+void AnimatorInstance::RegisterParameterBool(const std::string& name, bool value)
 {
 	m_BoolParameters[name] = value;
 }
-void AnimatorInstance::SetTrigger(const std::string& name, bool value)
+
+void AnimatorInstance::RegisterParameterTrigger(const std::string& name)
 {
-	// Trigger는 Bool로 처리되므로 Bool 파라미터에 저장
-	m_TriggerParameters[name] = value;
+	m_TriggerParameters[name] = false; // 트리거는 기본값이 false로 설정됨
+}
+
+void AnimatorInstance::SetInt(const std::string& name, int value)
+{
+	auto it = m_IntParameters.find(name);
+	if (it == m_IntParameters.end())
+	{
+		std::cerr << "Error: Parameter " << name << " is not registered as Int type." << std::endl;
+		return;
+	}
+
+	it->second = value;
+}
+
+void AnimatorInstance::SetFloat(const std::string& name, float value)
+{
+	auto it = m_FloatParameters.find(name);
+	if (it == m_FloatParameters.end())
+	{
+		std::cerr << "Error: Parameter " << name << " is not registered as float type." << std::endl;
+		return;
+	}
+	it->second = value;
+}
+
+void AnimatorInstance::SetBool(const std::string& name, bool value)
+{
+	auto it = m_BoolParameters.find(name);
+	if (it == m_BoolParameters.end())
+	{
+		std::cerr << "Error: Parameter " << name << " is not registered as bool type." << std::endl;
+		return;
+	}
+	it->second = value;
+}
+void AnimatorInstance::SetTrigger(const std::string& name)
+{
+	auto it = m_TriggerParameters.find(name);
+	if (it == m_TriggerParameters.end())
+	{
+		std::cerr << "Error: Parameter " << name << " is not registered as Trigger type." << std::endl;
+		return;
+	}
+	
+	it->second = true;
+}
+void AnimatorInstance::ResetTrigger(const std::string& name)
+{
+	auto it = m_TriggerParameters.find(name);
+	if (it == m_TriggerParameters.end())
+	{
+		std::cerr << "Error: Parameter " << name << " is not registered as Trigger type." << std::endl;
+		return;
+	}
+
+	it->second = false;
 }
 
 int AnimatorInstance::GetInt(const std::string& name) const
@@ -66,19 +117,20 @@ bool AnimatorInstance::GetTrigger(const std::string& name) const
 {
 	auto it = m_TriggerParameters.find(name);
 	assert(it != m_TriggerParameters.end());
-	if (it != m_TriggerParameters.end()) {
+	if (it != m_TriggerParameters.end()) 
+	{
 		return it->second;
 	}
 	return false; // 기본값
 }
 
-bool AnimatorInstance::CheckCondition(const std::string& param, const std::string& mode, float threshold)
-{
-	auto it = m_ParameterTypes.find(param);
-	if (it == m_ParameterTypes.end())
-		return false;
+bool AnimatorInstance::CheckCondition(const Condition& condition)
+{	
+	std::string param = condition.parameter;
+	std::string mode = condition.mode;
+	float threshold = condition.threshold;
 
-	switch (it->second)
+	switch (condition.type)
 	{
 	case ParameterType::Bool:
 	{
@@ -121,7 +173,7 @@ bool AnimatorInstance::CheckCondition(const std::string& param, const std::strin
 bool AnimatorInstance::EvaluateConditions(const std::vector<Condition>& conditions)
 {
 	for (const auto& condition : conditions) {
-		if (!CheckCondition(condition.parameter, condition.mode, condition.threshold)) {
+		if (!CheckCondition(condition)) {
 			return false; // 하나라도 조건이 만족하지 않으면 false
 		}
 	}
@@ -137,21 +189,17 @@ void AnimatorInstance::SetAnimatorController(AnimatorController* controller)
 	m_BoolParameters.clear();
 	for (const auto& param : controller->parameters) 
 	{
-		if (param.type == "Int") {	
-			RegisterParameter(param.name, ParameterType::Int);
-			SetInt(param.name, param.defaultInt);
+		if (param.type == "Int") {				
+			RegisterParameterInt(param.name, param.defaultInt);
 		}
-		else if (param.type == "Float") {
-			RegisterParameter(param.name, ParameterType::Float);
-			SetFloat(param.name, param.defaultFloat);
+		else if (param.type == "Float") {			
+			RegisterParameterFloat(param.name, param.defaultFloat);
 		}
-		else if (param.type == "Bool") {
-			RegisterParameter(param.name, ParameterType::Bool);
-			SetBool(param.name, param.defaultBool);
+		else if (param.type == "Bool") {			
+			RegisterParameterBool(param.name, param.defaultBool);
 		}
-		else if (param.type == "Trigger") {
-			RegisterParameter(param.name, ParameterType::Bool);
-			SetTrigger(param.name, param.defaultBool);
+		else if (param.type == "Trigger") {			
+			RegisterParameterTrigger(param.name);
 		}
 	}
 
@@ -173,7 +221,7 @@ void AnimatorInstance::ChangeState(const std::string& stateName)
 	assert(m_Controller != nullptr);
 	
 	State* pNext = m_Controller->GetState(stateName);
-	if (pNext == nullptr || pNext->index == m_CurrentStateIndex )
+	if (pNext == nullptr)
 		return;
 	
 	m_PrevStateIndex = m_CurrentStateIndex;
@@ -239,6 +287,13 @@ void AnimatorInstance::Update(float deltaTime)
 				<< m_Controller->states[m_CurrentStateIndex].name << " -> "
 				<< trans.toState << " " << m_elapsedTime << std::endl;
 			ChangeState(trans.toState);
+
+			for (auto& condition : trans.conditions) {				
+				if( condition.type == ParameterType::Trigger) {
+					// 트리거는 한번만 평가되므로 Reset
+					ResetTrigger(condition.parameter);
+				}
+			}
 			return;
 		}
 	}
@@ -250,6 +305,13 @@ void AnimatorInstance::Update(float deltaTime)
 				<< m_Controller->states[m_CurrentStateIndex].name << " -> " 
 				<< trans.toState <<  " " << m_elapsedTime << std::endl;
 			ChangeState(trans.toState);
+
+			for (auto& condition : trans.conditions) {
+				if (condition.type == ParameterType::Trigger) {
+					// 트리거는 한번만 평가되므로 Reset
+					ResetTrigger(condition.parameter);
+				}
+			}
 			return;
 		}
 	}

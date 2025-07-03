@@ -61,7 +61,8 @@
                         {
                             "parameter": "velocityX",
                             "mode": "Greater",
-                            "threshold": 0.0010000000474974514
+                            "threshold": 0.0010000000474974514,
+                            "type": "Float"
                         }
                     ]
                 },
@@ -74,7 +75,8 @@
                         {
                             "parameter": "grounded",
                             "mode": "IfNot",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         }
                     ]
                 }
@@ -95,7 +97,8 @@
                         {
                             "parameter": "",
                             "mode": "Always",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "None"
                         }
                     ]
                 }
@@ -116,7 +119,8 @@
                         {
                             "parameter": "dead",
                             "mode": "IfNot",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         }
                     ]
                 }
@@ -137,7 +141,8 @@
                         {
                             "parameter": "dead",
                             "mode": "IfNot",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         }
                     ]
                 },
@@ -150,7 +155,8 @@
                         {
                             "parameter": "dead",
                             "mode": "If",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         }
                     ]
                 }
@@ -171,12 +177,14 @@
                         {
                             "parameter": "grounded",
                             "mode": "If",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         },
                         {
                             "parameter": "velocityX",
                             "mode": "Less",
-                            "threshold": 0.10000000149011612
+                            "threshold": 0.10000000149011612,
+                            "type": "Float"
                         }
                     ]
                 },
@@ -189,7 +197,8 @@
                         {
                             "parameter": "grounded",
                             "mode": "If",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "Bool"
                         }
                     ]
                 }
@@ -210,7 +219,8 @@
                         {
                             "parameter": "velocityX",
                             "mode": "Less",
-                            "threshold": 0.0010000000474974514
+                            "threshold": 0.0010000000474974514,
+                            "type": "Float"
                         }
                     ]
                 },
@@ -223,7 +233,8 @@
                         {
                             "parameter": "grounded",
                             "mode": "IfNot",
-                            "threshold": 0.0
+                            "threshold": 0.009999999776482582,
+                            "type": "Bool"
                         }
                     ]
                 }
@@ -251,7 +262,8 @@
                         {
                             "parameter": "",
                             "mode": "Always",
-                            "threshold": 0.0
+                            "threshold": 0.0,
+                            "type": "None"
                         }
                     ]
                 },
@@ -264,7 +276,8 @@
                         {
                             "parameter": "velocityX",
                             "mode": "Greater",
-                            "threshold": 0.009999999776482582
+                            "threshold": 0.009999999776482582,
+                            "type": "Float"
                         }
                     ]
                 }
@@ -278,7 +291,8 @@
                 {
                     "parameter": "hurt",
                     "mode": "If",
-                    "threshold": 0.0
+                    "threshold": 0.0,
+                    "type": "Trigger"
                 }
             ]
         },
@@ -288,7 +302,8 @@
                 {
                     "parameter": "victory",
                     "mode": "If",
-                    "threshold": 0.0
+                    "threshold": 0.0,
+                    "type": "Trigger"
                 }
             ]
         }

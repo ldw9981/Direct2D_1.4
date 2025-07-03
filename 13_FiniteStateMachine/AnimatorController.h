@@ -1,5 +1,7 @@
 #pragma once
 
+enum class ParameterType { Int, Float, Bool, Trigger };
+ParameterType StringToParameterType(const std::string& type);
 
 struct Parameter
 {
@@ -14,6 +16,7 @@ struct Condition
 {
 	std::string parameter; // 조건 파라미터 이름
 	std::string mode; // 조건 모드 (예: Greater, IfNot 등)
+	ParameterType type; // 파라미터 타입 (예: Int, Float, Bool, Trigger)
 	float threshold = 0.0f; // 조건 임계값
 };
 
@@ -47,6 +50,7 @@ struct AnimatorController
 {
 	std::string controllerName; // 컨트롤러 이름
 	std::vector<Parameter> parameters; // 컨트롤러 파라미터 목록
+	std::unordered_map<std::string, ParameterType> paramTypes; // 타입매핑
 	
 	std::string defaultState; // 기본 상태 이름	
 	std::vector<State> states;

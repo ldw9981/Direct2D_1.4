@@ -67,6 +67,15 @@ void from_json(const nlohmann::json& in, AnimatorController& out) {
 	}
 }
 
+ParameterType StringToParameterType(const std::string& type)
+{
+	if (type == "Int") return ParameterType::Int;
+	else if (type == "Float") return ParameterType::Float;
+	else if (type == "Bool") return ParameterType::Bool;
+	else if (type == "Trigger") return ParameterType::Trigger;
+	return ParameterType::Int; // 기본값
+}
+
 void LoadAnimatorController(const std::string& filePath, AnimatorController& out)
 {
 	std::ifstream inFile(filePath);
@@ -77,20 +86,41 @@ void LoadAnimatorController(const std::string& filePath, AnimatorController& out
 		// JSON 객체에서 데이터 추출
 		out.controllerName = in["controllerName"];
 		out.parameters = in["parameters"].get<std::vector<Parameter>>();
-
-		out.defaultState = in["defaultState"];
-
-		if (in.contains("states")) {
-			out.states = in["states"].get<std::vector<State>>();
+				
+		for (const auto& param : out.parameters) {
+			// key:파라메터이름, value: type  추가 
+			out.paramTypes[param.name] = StringToParameterType(param.type);
 		}
 
+		out.defaultState = in["defaultState"];
+		if (in.contains("states")) {
+			out.states = in["states"].get<std::vector<State>>();						
+		}
+
+		
 		for (int i = 0; i < out.states.size(); ++i) {
+
+			// 상태이름으로 Index 생성
 			out.stateNameToIndex[out.states[i].name] = i;
 			out.states[i].index = i; // 상태 인덱스 설정
+
+			for (auto& trans : out.states[i].transitions)	{
+				for (auto& condi : trans.conditions)	{
+					// 파라메터이름 -> type 변환
+					condi.type = out.paramTypes[condi.parameter];
+				}
+			}			
 		}
 	
 		if (in.contains("anyStateTransitions")) {
 			out.anyStateTransitions = in["anyStateTransitions"].get<std::vector<AnyStateTransition>>();
+		
+			for (auto& trans : out.anyStateTransitions) {
+				for (auto& condi : trans.conditions) {
+					// 파라메터이름 -> type 변환
+					condi.type = out.paramTypes[condi.parameter];
+				}
+			}
 		}	
 	}
 	else {

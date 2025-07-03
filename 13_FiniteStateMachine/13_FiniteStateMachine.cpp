@@ -19,7 +19,6 @@ int main()
 	AnimatorInstance animInstance;
 	animInstance.SetAnimatorController(&animController);
 
-
 	animInstance.SetBool("grounded", true);
 	animInstance.OnStart();
 
@@ -31,12 +30,16 @@ int main()
 		Sleep(deltaTime*1000); // 대기 
 		animInstance.Update(deltaTime); // 0.1초 단위로 업데이트
 		
-		if (GetAsyncKeyState('A') & 0x8000) {
+		if (GetAsyncKeyState('A') & 0x8000) { 
 			animInstance.SetFloat("velocityX", 1.0f);
 		}
 		else 
 		{
 			animInstance.SetFloat("velocityX", 0.0f);
+		}
+
+		if (GetAsyncKeyState('H') & 0x8000) {
+			animInstance.SetTrigger("hurt"); // Trigger테스트
 		}
 	}	
 
