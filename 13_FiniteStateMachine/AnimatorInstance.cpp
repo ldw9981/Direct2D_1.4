@@ -166,7 +166,8 @@ void AnimatorInstance::ChangeState(const std::string& stateName)
 			m_Controller->states[m_CurrentStateIndex].name);
 	}
 
-	std::cout << "Play Animation Clip: " 
+	// ToDo:: 모션이름으로 현재 사용할 Animation Clip 참조 연결해야합니다. 
+	std::cout << "ChangeState " 
 		<< m_Controller->states[m_CurrentStateIndex].motionName << std::endl;
 }
 
@@ -185,14 +186,20 @@ void AnimatorInstance::Update(float deltaTime)
 	{
 		m_elapsedTime = fmod(m_elapsedTime, clipLength); // 나머지 시간
 	}
-	
 
-	// Todo:
-	//The SpriteRenderer must be assigned the sprite information from the AnimationClip.
+	// Todo: SpriteRender에 현재시간에 맞는 Sprite정보를 설정해야합니다.	
+	//
+	//
+	
 	std ::cout << "State "
 		<< m_Controller->states[m_CurrentStateIndex].name 
 		<< ", Elapsed Time: " << m_elapsedTime << std::endl;
 	
+	if (m_StateNotifiers[m_CurrentStateIndex] != nullptr) {
+		m_StateNotifiers[m_CurrentStateIndex]->OnUpdateState(
+			m_Controller->states[m_CurrentStateIndex].name);
+	}
+
 	const auto& currentStateDef = m_Controller->states.at(m_CurrentStateIndex);
 
 	for (const auto& trans : currentStateDef.transitions) {

@@ -6,7 +6,7 @@ class IStateNotify
 public:
 	virtual void OnEnterState(const std::string& stateName) = 0;
 	virtual void OnExitState(const std::string& stateName) = 0;
-	virtual void OnUpdateState(const std::string& stateName, float deltaTime) = 0;
+	virtual void OnUpdateState(const std::string& stateName) = 0;
 };
 struct State;
 struct AnimatorController;
