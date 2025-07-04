@@ -36,6 +36,7 @@ public:
 		for (const auto& s : slots)
 		{
 			// Handle로 테이블에서 유효한지 검사
+			// 오브젝트가 속한 Scene에서 유효성검사 변경필요
 			if (ObjectTable::Instance().IsValid(s.instance))
 				s.func(args...);
 		}
