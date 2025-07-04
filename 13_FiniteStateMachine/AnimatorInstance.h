@@ -22,7 +22,7 @@ private:
 	std::unordered_map<std::string, bool> m_TriggerParameters;
 
 	AnimatorController* m_Controller = nullptr; // 현재 애니메이터 컨트롤러
-	float m_elapsedTime = 0.0f; // 프레임 간 시간 차이	
+	float m_elapsedTime = 0.0f; // 애니메이션 시간 누적용
 	int m_CurrentStateIndex = -1; // 현재 상태 인덱스
 	int m_PrevStateIndex = -1; // 이전 상태 인덱스
 	std::vector<IStateNotify*> m_StateNotifiers; // 상태 알림 인터페이스
